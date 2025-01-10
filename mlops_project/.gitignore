@@ -178,3 +178,4 @@ cython_debug/
 
 # Data
 data/raw/en-fr.csv
+data/processed/subsample.csv
