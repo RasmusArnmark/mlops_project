@@ -20,3 +20,5 @@ This project focuses on building a machine translation system for English-to-Fre
 - **Version Control**: Git and DVC.
 - **Experiment Tracking**: Weights & Biases (W&B).
 - **Deployment**: Docker for containerization.
+
+Test
