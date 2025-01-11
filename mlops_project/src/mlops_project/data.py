@@ -106,9 +106,17 @@ def tokenize_data(dataset, tokenizer_name="facebook/mbart-large-50", max_len=128
 
     return tokenized_dataset
 
-def preprocess_data(file_path, percentage=10, tokenizer_name="facebook/mbart-large-50", max_len=128, chunk_size=10000, batch_size=32):
+def preprocess_data(
+    file_path,
+    percentage=10,
+    tokenizer_name="facebook/mbart-large-50",
+    max_len=128,
+    chunk_size=10000,
+    batch_size=32,
+    save_path=None,
+):
     """
-    Loads, subsamples, and tokenizes the dataset.
+    Loads, subsamples, tokenizes, and optionally saves the dataset.
 
     Args:
         file_path (str): Path to the CSV file.
@@ -117,6 +125,7 @@ def preprocess_data(file_path, percentage=10, tokenizer_name="facebook/mbart-lar
         max_len (int): Maximum sequence length for tokenized data.
         chunk_size (int): Number of rows to load at a time.
         batch_size (int): Batch size for tokenization.
+        save_path (str): Path to save the processed dataset (optional).
 
     Returns:
         Dataset: A tokenized and optionally subsampled dataset.
@@ -130,6 +139,11 @@ def preprocess_data(file_path, percentage=10, tokenizer_name="facebook/mbart-lar
     # Tokenize the dataset
     tokenized_dataset = tokenize_data(subsampled_dataset, tokenizer_name, max_len, batch_size)
 
+    # Save the dataset if a save path is provided
+    if save_path:
+        tokenized_dataset.save_to_disk(save_path)
+        logging.info(f"Tokenized dataset saved to {save_path}")
+
     return tokenized_dataset
 
 if __name__ == "__main__":
@@ -138,9 +152,17 @@ if __name__ == "__main__":
     # Define file paths
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     data_path = os.path.join(project_root, "data/raw/en-fr.csv")
+    save_path = os.path.join(project_root, "data/processed/tokenized_dataset")
 
-    # Preprocess the dataset
-    tokenized_data = preprocess_data(data_path, percentage=20, max_len=128, chunk_size=10000, batch_size=32)
+    # Preprocess and save the dataset
+    tokenized_data = preprocess_data(
+        data_path,
+        percentage=20,
+        max_len=128,
+        chunk_size=10000,
+        batch_size=32,
+        save_path=save_path,
+    )
 
     # Example output: Inspect the first tokenized item
     print(tokenized_data[0])
