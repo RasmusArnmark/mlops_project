@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 
-from mlops_project.data import MyDataset
+from mlops_project.src.mlops_project.data import MyDataset
 
 
 def test_my_dataset():

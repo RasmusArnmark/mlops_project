@@ -1,55 +1,22 @@
-# mlops_project
+# English-French Translation Project
 
-Using Bert to classify fake news
+## Project Description
+This project focuses on building a machine translation system for English-to-French text using modern Natural Language Processing (NLP) techniques. We will fine-tune the pre-trained mBART transformer model on the "English-French Translation Dataset" to achieve accurate and efficient translations.
 
-## Project structure
+## Dataset
+**Name**: [English-French Translation Dataset](https://www.kaggle.com/datasets/dhruvildave/en-fr-translation-dataset?resource=download)  
+**Description**: A parallel corpus of English and French sentences, curated to ensure quality translations and sufficient data volume for robust model training.  
+**Size**: 8.41 GB  
 
-The directory structure of the project looks like this:
-```txt
-├── .github/                  # Github actions and dependabot
-│   ├── dependabot.yaml
-│   └── workflows/
-│       └── tests.yaml
-├── configs/                  # Configuration files
-├── data/                     # Data directory
-│   ├── processed
-│   └── raw
-├── dockerfiles/              # Dockerfiles
-│   ├── api.Dockerfile
-│   └── train.Dockerfile
-├── docs/                     # Documentation
-│   ├── mkdocs.yml
-│   └── source/
-│       └── index.md
-├── models/                   # Trained models
-├── notebooks/                # Jupyter notebooks
-├── reports/                  # Reports
-│   └── figures/
-├── src/                      # Source code
-│   ├── project_name/
-│   │   ├── __init__.py
-│   │   ├── api.py
-│   │   ├── data.py
-│   │   ├── evaluate.py
-│   │   ├── models.py
-│   │   ├── train.py
-│   │   └── visualize.py
-└── tests/                    # Tests
-│   ├── __init__.py
-│   ├── test_api.py
-│   ├── test_data.py
-│   └── test_model.py
-├── .gitignore
-├── .pre-commit-config.yaml
-├── LICENSE
-├── pyproject.toml            # Python project file
-├── README.md                 # Project README
-├── requirements.txt          # Project requirements
-├── requirements_dev.txt      # Development requirements
-└── tasks.py                  # Project tasks
-```
+## Objectives
+1. Build a robust English-to-French translation system using the mBART transformer model.
+2. Fine-tune mBART specifically for this language pair.
+3. Implement ML Ops practices for reproducibility, scalability, and efficient deployment.
 
-
-Created using [mlops_template](https://github.com/SkafteNicki/mlops_template),
-a [cookiecutter template](https://github.com/cookiecutter/cookiecutter) for getting
-started with Machine Learning Operations (MLOps).
+## Tools and Frameworks
+- **Model**: mBART (Hugging Face Transformers).
+- **Programming Framework**: PyTorch for model fine-tuning.
+- **Data Handling**: Pandas and NumPy for preprocessing.
+- **Version Control**: Git and DVC.
+- **Experiment Tracking**: Weights & Biases (W&B).
+- **Deployment**: Docker for containerization.
