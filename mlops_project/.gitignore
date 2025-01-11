@@ -177,7 +177,5 @@ cython_debug/
 #.idea/
 
 # Data
-data/raw/en-fr.csv
-data/raw/subsample.csv
-
+data/
 
