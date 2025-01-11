@@ -29,7 +29,13 @@ def load_data(file_path, source_col="source", target_col="target", chunk_size=10
         logging.info(f"Loaded chunk of size {len(chunk)}.")
 
     # Concatenate all chunks into a single Dataset
-    dataset = Dataset.concatenate(*chunks)
+    if len(chunks) > 1:
+        dataset = Dataset.from_dict(pd.concat([chunk.to_pandas() for chunk in chunks]).to_dict(orient="list"))
+    elif len(chunks) == 1:
+        dataset = chunks[0]
+    else:
+        raise ValueError("No data found in the CSV file.")
+    
     return dataset
 
 def subsample_data(dataset, percentage=10):
