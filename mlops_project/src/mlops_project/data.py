@@ -2,6 +2,8 @@ import pandas as pd
 from datasets import Dataset
 from transformers import MBartTokenizer
 import logging
+import kagglehub
+import os
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
@@ -144,3 +146,13 @@ if __name__ == "__main__":
 
     # Example output: Inspect the first tokenized item
     print(tokenized_data[0])
+    path = kagglehub.dataset_download("dhruvildave/en-fr-translation-dataset")
+
+    files = os.listdir(path)
+
+    dataset_file_path = os.path.join(path, 'en-fr.csv')  # Correct file name
+
+    df = pd.read_csv(dataset_file_path, nrows=250000)  # Read only the first 2500000 rows
+
+    output_file = 'data/raw/en-fr.csv'
+    df.to_csv(output_file, index=False)
