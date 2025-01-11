@@ -110,7 +110,7 @@ def tokenize_data(dataset, tokenizer_name="facebook/mbart-large-50", max_len=128
 
 def preprocess_data(
     file_path,
-    percentage=10,
+    percentage=100,
     tokenizer_name="facebook/mbart-large-50",
     max_len=128,
     chunk_size=10000,
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     # Preprocess and save the dataset
     tokenized_data = preprocess_data(
         data_path,
-        percentage=20,
+        percentage=100,
         max_len=128,
         chunk_size=10000,
         batch_size=32,
@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
     dataset_file_path = os.path.join(path, 'en-fr.csv')  # Correct file name
 
-    df = pd.read_csv(dataset_file_path, nrows=250000)  # Read only the first 2500000 rows
-
+    df = pd.read_csv(dataset_file_path, nrows=250.000)  # Read only the first 250000 rows
+    df = df.drop(93793)
     output_file = 'data/raw/en-fr.csv'
     df.to_csv(output_file, index=False)

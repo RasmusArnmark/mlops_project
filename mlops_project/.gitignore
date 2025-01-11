@@ -179,4 +179,5 @@ cython_debug/
 # Data
 data/raw/en-fr.csv
 data/raw/subsample.csv
-tester.py
+
+
