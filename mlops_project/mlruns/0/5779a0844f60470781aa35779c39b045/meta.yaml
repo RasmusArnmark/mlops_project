@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/rasmusarnmark/Desktop/mlops/mlops_project/mlops_project/mlruns/0/5779a0844f60470781aa35779c39b045/artifacts
+end_time: 1736881173351
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 5779a0844f60470781aa35779c39b045
+run_name: /Users/rasmusarnmark/Desktop/mlops/mlops_project/mlops_project/src/mlops_project/../../reports/results
+run_uuid: 5779a0844f60470781aa35779c39b045
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1736881172338
+status: 3
+tags: []
+user_id: rasmusarnmark
