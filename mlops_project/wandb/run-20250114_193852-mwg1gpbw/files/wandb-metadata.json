@@ -1,0 +1,44 @@
+{
+  "os": "macOS-15.1.1-arm64-arm-64bit",
+  "python": "CPython 3.11.9",
+  "startedAt": "2025-01-14T18:38:52.559784Z",
+  "program": "/Users/rasmusarnmark/Desktop/mlops/mlops_project/mlops_project/src/mlops_project/train.py",
+  "codePath": "mlops_project/src/mlops_project/train.py",
+  "git": {
+    "remote": "https://github.com/RasmusArnmark/mlops_project",
+    "commit": "7c247bc8b66d818f8a559bae44c08be990ea7812"
+  },
+  "email": "rasmusarnmark@gmail.com",
+  "root": "/Users/rasmusarnmark/Desktop/mlops/mlops_project/mlops_project",
+  "host": "mac.lan",
+  "executable": "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+  "codePathLocal": "src/mlops_project/train.py",
+  "cpu_count": 10,
+  "cpu_count_logical": 10,
+  "disk": {
+    "/": {
+      "total": "245107195904",
+      "used": "189532438528"
+    },
+    "/System/Volumes/Data": {
+      "total": "245107195904",
+      "used": "189532438528"
+    }
+  },
+  "memory": {
+    "total": "17179869184"
+  },
+  "cpu": {
+    "count": 10,
+    "countLogical": 10
+  },
+  "apple": {
+    "name": "Apple M4",
+    "ecpuCores": 6,
+    "pcpuCores": 4,
+    "gpuCores": 10,
+    "memoryGb": 16,
+    "swapTotalBytes": "2147483648",
+    "ramTotalBytes": "17179869184"
+  }
+}
