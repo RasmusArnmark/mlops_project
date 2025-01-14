@@ -34,7 +34,7 @@ def preprocess_data(
     """
     tokenizer = MBart50Tokenizer.from_pretrained(tokenizer_name)
 
-    def load_data(file_path, chunk_size=10000):
+    def load_data(file_path, chunk_size=1000):
         chunks = []
         for chunk in pd.read_csv(file_path, chunksize=chunk_size):
             chunk = chunk.rename(columns={"en": "source", "fr": "target"})
@@ -82,7 +82,6 @@ def preprocess_data(
 
     return tokenized_dataset
 
-
 if __name__ == "__main__":
     # Define paths
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -94,8 +93,8 @@ if __name__ == "__main__":
         raw_data_path,
         percentage=100,
         max_len=128,
-        chunk_size=10000,
-        batch_size=32,
+        chunk_size=1000,
+        batch_size=16,
         save_path=processed_data_path,
     )
     if tokenized_data:
