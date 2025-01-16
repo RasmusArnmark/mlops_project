@@ -1,8 +1,7 @@
 import os
-import shutil
 from pathlib import Path
 import tempfile
-from src.data import process_and_split_data
+from mlops_project.src.mlops_project.data import process_and_split_data
 
 def test_process_and_split_data():
     """
