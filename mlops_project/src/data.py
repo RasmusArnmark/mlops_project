@@ -26,7 +26,8 @@ def process_and_split_data(test_subset_size=500):
     # Gather all image paths and labels
     all_images = []
     labels = []
-
+    
+    print("starting to process data")
     for class_name in os.listdir(RAW_DATA_DIR):
         class_path = os.path.join(RAW_DATA_DIR, class_name)
         if os.path.isdir(class_path):
