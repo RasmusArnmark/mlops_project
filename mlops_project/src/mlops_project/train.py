@@ -5,56 +5,52 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from model import FoodCNN
-import wandb
 
 # Hyperparameters
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
-EPOCHS = 1
+EPOCHS = 10
 IMG_SIZE = (128, 128)
 DATA_DIR = "data/processed"
-MODEL_PATH = "models/food_cnn.pth"
+MODEL_DIR = "models"
 
-wandb.login()
+
+def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
+    """Generate a new model file path if one already exists."""
+    counter = 1
+    new_path = os.path.join(base_path, f"{base_name}{extension}")
+    while os.path.exists(new_path):
+        new_path = os.path.join(base_path, f"{base_name}_{counter}{extension}")
+        counter += 1
+    return new_path
+
 
 def train_model():
-    # Initialize wandb
-    wandb.init(
-        project="food-classification", 
-        config={
-            "batch_size": BATCH_SIZE,
-            "learning_rate": LEARNING_RATE,
-            "epochs": EPOCHS,
-            "img_size": IMG_SIZE,
-            "model": "FoodCNN",
-        },
-    )
-    config = wandb.config
+    # Ensure the model directory exists
+    os.makedirs(MODEL_DIR, exist_ok=True)
 
+    # Define transforms for the data
     transform = transforms.Compose([
-        transforms.Resize(config.img_size),
+        transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize to [-1, 1]
     ])
-    
+
     # Load datasets
     train_data = datasets.ImageFolder(os.path.join(DATA_DIR, 'train'), transform=transform)
     val_data = datasets.ImageFolder(os.path.join(DATA_DIR, 'val'), transform=transform)
-    
-    train_loader = DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=config.batch_size, shuffle=False)
+
+    train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=BATCH_SIZE, shuffle=False)
 
     # Initialize model, loss function, and optimizer
     num_classes = len(train_data.classes)
     model = FoodCNN(num_classes)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-    # Track gradients and model
-    wandb.watch(model, criterion, log="all", log_freq=10)
-    print("Model training started...")
     # Training loop
-    for epoch in range(config.epochs):
+    for epoch in range(EPOCHS):
         model.train()
         running_loss = 0.0
         for images, labels in train_loader:
@@ -79,26 +75,18 @@ def train_model():
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        # Log metrics to wandb
-        wandb.log({
-            "train_loss": running_loss / len(train_loader),
-            "val_loss": val_loss / len(val_loader),
-            "val_accuracy": correct / total,
-            "epoch": epoch + 1,
-        })
-
-        print(f"Epoch {epoch+1}/{config.epochs}, "
+        print(f"Epoch {epoch+1}/{EPOCHS}, "
               f"Train Loss: {running_loss/len(train_loader):.4f}, "
               f"Val Loss: {val_loss/len(val_loader):.4f}, "
               f"Val Accuracy: {correct/total:.4f}")
 
-    # Save the trained model
-    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    torch.save(model.state_dict(), MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
+    # Determine the model path
+    model_path = get_new_model_path(MODEL_DIR, base_name="food_cnn", extension=".pth")
 
-    # Finish the wandb run
-    wandb.finish()
+    # Save the trained model
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
+
 
 if __name__ == "__main__":
     train_model()
