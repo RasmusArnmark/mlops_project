@@ -10,7 +10,7 @@ import wandb
 # Hyperparameters
 BATCH_SIZE = 32
 LEARNING_RATE = 0.001
-EPOCHS = 10
+EPOCHS = 1
 IMG_SIZE = (128, 128)
 DATA_DIR = "data/processed"
 MODEL_PATH = "models/food_cnn.pth"
