@@ -1,0 +1,39 @@
+{
+  "os": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "CPython 3.12.8",
+  "startedAt": "2025-01-16T11:35:56.477985Z",
+  "program": "-m src.mlops_project.train",
+  "git": {
+    "remote": "https://github.com/RasmusArnmark/mlops_project",
+    "commit": "ece530609603fd7bd15069c544c2764005662fd8"
+  },
+  "email": "Eliasrasmussen12345@gmail.com",
+  "root": "/home/lyngsberg/ML_ops/project/mlops_project/mlops_project",
+  "host": "DESKTOP-KTB5R6K",
+  "executable": "/home/lyngsberg/miniconda3/bin/python",
+  "cpu_count": 6,
+  "cpu_count_logical": 12,
+  "gpu": "NVIDIA GeForce GTX 1050 Ti with Max-Q Design",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "1081101176832",
+      "used": "39036616704"
+    }
+  },
+  "memory": {
+    "total": "16623255552"
+  },
+  "cpu": {
+    "count": 6,
+    "countLogical": 12
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce GTX 1050 Ti with Max-Q Design",
+      "memoryTotal": "4294967296",
+      "architecture": "Pascal"
+    }
+  ],
+  "cudaVersion": "12.0"
+}
