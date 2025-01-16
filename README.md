@@ -1,22 +1,49 @@
-# English-French Translation Project
+# Food Image Classification Project
 
-## Project Description
-This project focuses on building a machine translation system for English-to-French text using modern Natural Language Processing (NLP) techniques. We will fine-tune the pre-trained mBART transformer model on the "English-French Translation Dataset" to achieve accurate and efficient translations.
+## Overview
+
+This project demonstrates an end-to-end MLOps pipeline for training and evaluating a Convolutional Neural Network (CNN) model to classify food images. The pipeline follows best practices for reproducibility and scalability and utilizes the Food Image Classification Dataset from Kaggle. Key components include data preprocessing, training, and testing.
+
+### Project structure
+
+mlops_project/
+├── data/               # Dataset directory
+│   ├── raw/           # Raw Kaggle dataset
+│   └── processed/     # Preprocessed dataset (train/val/test)
+├── models/             # Trained model files
+├── src/                # Source code
+│   ├── data.py         # Data preprocessing script
+│   ├── train.py        # Model training script
+│   ├── test.py         # Model testing script
+│   └── model.py        # CNN model definition
+├── dvc.yaml            # DVC pipeline definition
+├── params.yaml         # Hyperparameters
+├── requirements.txt    # Python dependencies
+├── Dockerfile          # Docker configuration
+├── .gitignore          # Files to ignore in Git
+└── README.md           # Project documentation
 
 ## Dataset
-**Name**: [English-French Translation Dataset](https://www.kaggle.com/datasets/dhruvildave/en-fr-translation-dataset?resource=download)  
-**Description**: A parallel corpus of English and French sentences, curated to ensure quality translations and sufficient data volume for robust model training.  
-**Size**: 8.41 GB  
 
-## Objectives
-1. Build a robust English-to-French translation system using the mBART transformer model.
-2. Fine-tune mBART specifically for this language pair.
-3. Implement ML Ops practices for reproducibility, scalability, and efficient deployment.
+**Food Image Classification Dataset**  
+- **Source**: [Kaggle](https://www.kaggle.com)  
+- **Description**: Contains images of various food items categorized into distinct classes such as burgers, pizzas, samosas, fries, and more.  
+- **Structure**: Organized into subdirectories for each class.
 
-## Tools and Frameworks
-- **Model**: mBART (Hugging Face Transformers).
-- **Programming Framework**: PyTorch for model fine-tuning.
-- **Data Handling**: Pandas and NumPy for preprocessing.
-- **Version Control**: Git and DVC.
-- **Experiment Tracking**: Weights & Biases (W&B).
-- **Deployment**: Docker for containerization.
+## Getting Started
+
+### 1. Prerequisites
+
+Ensure you have the following installed:
+- Python 3.8+
+- pip
+- PyTorch
+- torchvision
+- DVC
+- scikit-learn
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+
