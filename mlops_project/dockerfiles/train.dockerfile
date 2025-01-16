@@ -1,17 +1,26 @@
-# Base image
+# Base image with Python 3.11
 FROM python:3.11-slim AS base
 
+# Install necessary system dependencies for building Python packages
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-COPY src src/
-COPY requirements.txt requirements.txt
-COPY requirements_dev.txt requirements_dev.txt
-COPY README.md README.md
-COPY pyproject.toml pyproject.toml
+# Set the working directory inside the container
+WORKDIR /app
 
-RUN pip install -r requirements.txt --no-cache-dir --verbose
-RUN pip install . --no-deps --no-cache-dir --verbose
+# Copy only the requirements file first to cache pip installations
+COPY requirements.txt /app/
 
-ENTRYPOINT ["python", "-u", "src/mlops_project/train.py"]
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . /app
+
+# Set environment variable for Weights & Biases API key (optional at runtime)
+ENV WANDB_API_KEY=${WANDB_API_KEY}
+
+# Default command to execute the training script
+ENTRYPOINT ["python", "src/mlops_project/train.py"]
+
