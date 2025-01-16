@@ -1,72 +1,58 @@
 import os
-import shutil
-from PIL import Image
+from pathlib import Path
 from sklearn.model_selection import train_test_split
-from tqdm import tqdm
-import random 
+from torchvision import datasets, transforms
+import torch
+import typer
+from torch.utils.data import DataLoader, Dataset
+from torchvision.datasets import ImageFolder
 
-# Define input and output paths
-RAW_DATA_DIR = "data/raw"  # Path to the extracted Kaggle dataset
-PROCESSED_DATA_DIR = "data/processed"
-IMG_SIZE = (128, 128)  # Resize images to this size
 
-def create_directories(base_dir):
-    """
-    Create necessary directories for processed data.
-    """
-    for split in ['train', 'val', 'test']:
-        split_dir = os.path.join(base_dir, split)
-        os.makedirs(split_dir, exist_ok=True)
+# Define your transforms (for preprocessing)
+def get_transforms():
+    return transforms.Compose([
+        transforms.Resize((224, 224)),  # Resize images to a fixed size
+        transforms.ToTensor(),          # Convert to tensor
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize (ImageNet stats)
+    ])
 
-def process_and_split_data(test_subset_size=500):
-    """
-    Process and split the dataset into train/val/test sets.
-    Use only a subset of the test data if specified.
-    """
-    # Gather all image paths and labels
-    all_images = []
-    labels = []
 
-    for class_name in os.listdir(RAW_DATA_DIR):
-        class_path = os.path.join(RAW_DATA_DIR, class_name)
-        if os.path.isdir(class_path):
-            for img_name in os.listdir(class_path):
-                img_path = os.path.join(class_path, img_name)
-                all_images.append(img_path)
-                labels.append(class_name)
+def preprocess_data(raw_dir: str= 'data/raw', processed_dir: str= 'data/processed') -> None:
+    """Process raw data and save it to processed directory."""
+    # Prepare data directory paths
+    food_dir = Path(raw_dir)
+    
+    # Define a transform for preprocessing the images
+    transform = get_transforms()
 
-    # Split into train, val, and test sets
-    train_images, temp_images, train_labels, temp_labels = train_test_split(
-        all_images, labels, test_size=0.3, stratify=labels, random_state=42
-    )
-    val_images, test_images, val_labels, test_labels = train_test_split(
-        temp_images, temp_labels, test_size=0.5, stratify=temp_labels, random_state=42
-    )
+    dataset = datasets.ImageFolder(root=food_dir, transform=transform)
 
-    # Use a subset of test data
-    if test_subset_size < len(test_images):
-        test_subset = random.sample(list(zip(test_images, test_labels)), test_subset_size)
-        test_images, test_labels = zip(*test_subset)
+    # Split the dataset into train/test sets (80/20 split)
+    train_data, test_data = train_test_split(dataset.samples, test_size=0.2, random_state=42)
 
-    # Define splits
-    splits = {
-        "train": (train_images, train_labels),
-        "val": (val_images, val_labels),
-        "test": (test_images, test_labels)
-    }
+    # Create DataLoader for train and test sets
+    train_dataset = torch.utils.data.Subset(dataset, range(len(train_data)))
+    test_dataset = torch.utils.data.Subset(dataset, range(len(test_data)))
 
-    # Process and save images
-    create_directories(PROCESSED_DATA_DIR)
-    for split, (images, split_labels) in splits.items():
-        print(f"Processing {split} data...")
-        for img_path, label in tqdm(zip(images, split_labels), total=len(images)):
-            label_dir = os.path.join(PROCESSED_DATA_DIR, split, label)
-            os.makedirs(label_dir, exist_ok=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-            img = Image.open(img_path).convert("RGB")
-            img = img.resize(IMG_SIZE)
-            img.save(os.path.join(label_dir, os.path.basename(img_path)))
+    # Optionally save data
+    torch.save(train_dataset, f"{processed_dir}/train_data.pt")
+    torch.save(test_dataset, f"{processed_dir}/test_data.pt")
+
+
+def food_images() -> tuple[torch.utils.data.Dataset, torch.utils.data.Dataset]:
+    """Return train and test datasets for food images."""
+    train_loader = torch.load("data/processed/train_data.pt")
+    test_loader = torch.load("data/processed/test_data.pt")
+    return train_loader, test_loader
+
+
 
 if __name__ == "__main__":
-    process_and_split_data(test_subset_size=500)  # Use a subset of 500 test images
-    print("Data processing complete!")
+    #typer.run(preprocess_data)
+    preprocess_data()
+    train, _ = food_images()
+    print(train)
+
