@@ -1,101 +1,72 @@
-import pandas as pd
-from datasets import Dataset
-from transformers import MBart50Tokenizer
-import logging
 import os
+import shutil
+from PIL import Image
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+import random 
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
+# Define input and output paths
+RAW_DATA_DIR = "data/raw"  # Path to the extracted Kaggle dataset
+PROCESSED_DATA_DIR = "data/processed"
+IMG_SIZE = (128, 128)  # Resize images to this size
 
-
-def preprocess_data(
-    file_path,
-    percentage=10,
-    tokenizer_name="facebook/mbart-large-50",
-    max_len=128,
-    chunk_size=1000,
-    batch_size=32,
-    save_path=None,
-):
+def create_directories(base_dir):
     """
-    Tokenizes the dataset and saves the processed output.
-
-    Args:
-        file_path (str): Path to the cleaned CSV file.
-        percentage (float): Percentage of data to subsample (default: 10%).
-        tokenizer_name (str): Tokenizer model to use.
-        max_len (int): Max token length for tokenization.
-        chunk_size (int): Number of rows to load at once.
-        batch_size (int): Batch size for tokenization.
-        save_path (str): Path to save the processed dataset.
-
-    Returns:
-        Dataset: A tokenized dataset.
+    Create necessary directories for processed data.
     """
-    tokenizer = MBart50Tokenizer.from_pretrained(tokenizer_name)
+    for split in ['train', 'val', 'test']:
+        split_dir = os.path.join(base_dir, split)
+        os.makedirs(split_dir, exist_ok=True)
 
-    def load_data(file_path, chunk_size=1000):
-        chunks = []
-        for chunk in pd.read_csv(file_path, chunksize=chunk_size):
-            chunk = chunk.rename(columns={"en": "source", "fr": "target"})
-            chunks.append(Dataset.from_pandas(chunk))
-            logging.info(f"Loaded chunk of size {len(chunk)}.")
-        if len(chunks) > 1:
-            dataset = Dataset.from_dict(pd.concat([chunk.to_pandas() for chunk in chunks]).to_dict(orient="list"))
-        elif len(chunks) == 1:
-            dataset = chunks[0]
-        else:
-            logging.error("No valid data found.")
-            return None
-        return dataset
+def process_and_split_data(test_subset_size=500):
+    """
+    Process and split the dataset into train/val/test sets.
+    Use only a subset of the test data if specified.
+    """
+    # Gather all image paths and labels
+    all_images = []
+    labels = []
 
-    def subsample_data(dataset, percentage):
-        if not (0 < percentage <= 100):
-            raise ValueError("Percentage must be between 0 and 100.")
-        num_samples = int(len(dataset) * (percentage / 100))
-        subsampled_dataset = dataset.shuffle(seed=42).select(range(num_samples))
-        logging.info(f"Subsampled dataset to {num_samples} examples.")
-        return subsampled_dataset
+    for class_name in os.listdir(RAW_DATA_DIR):
+        class_path = os.path.join(RAW_DATA_DIR, class_name)
+        if os.path.isdir(class_path):
+            for img_name in os.listdir(class_path):
+                img_path = os.path.join(class_path, img_name)
+                all_images.append(img_path)
+                labels.append(class_name)
 
-    def tokenize_batch(batch):
-        source_texts = [str(x) for x in batch["source"]]
-        target_texts = [str(x) for x in batch["target"]]
-        tokenized_source = tokenizer(source_texts, max_length=max_len, truncation=True, padding="max_length")
-        tokenized_target = tokenizer(target_texts, max_length=max_len, truncation=True, padding="max_length")
-        return {
-            "input_ids": tokenized_source["input_ids"],
-            "attention_mask": tokenized_source["attention_mask"],
-            "labels": tokenized_target["input_ids"],
-        }
+    # Split into train, val, and test sets
+    train_images, temp_images, train_labels, temp_labels = train_test_split(
+        all_images, labels, test_size=0.3, stratify=labels, random_state=42
+    )
+    val_images, test_images, val_labels, test_labels = train_test_split(
+        temp_images, temp_labels, test_size=0.5, stratify=temp_labels, random_state=42
+    )
 
-    dataset = load_data(file_path, chunk_size)
-    if dataset is None:
-        return None
-    logging.info(f"Dataset loaded with {len(dataset)} examples.")
+    # Use a subset of test data
+    if test_subset_size < len(test_images):
+        test_subset = random.sample(list(zip(test_images, test_labels)), test_subset_size)
+        test_images, test_labels = zip(*test_subset)
 
-    subsampled_dataset = subsample_data(dataset, percentage)
-    tokenized_dataset = subsampled_dataset.map(tokenize_batch, batched=True, batch_size=batch_size)
+    # Define splits
+    splits = {
+        "train": (train_images, train_labels),
+        "val": (val_images, val_labels),
+        "test": (test_images, test_labels)
+    }
 
-    if save_path:
-        tokenized_dataset.save_to_disk(save_path)
-        logging.info(f"Tokenized dataset saved to: {save_path}")
+    # Process and save images
+    create_directories(PROCESSED_DATA_DIR)
+    for split, (images, split_labels) in splits.items():
+        print(f"Processing {split} data...")
+        for img_path, label in tqdm(zip(images, split_labels), total=len(images)):
+            label_dir = os.path.join(PROCESSED_DATA_DIR, split, label)
+            os.makedirs(label_dir, exist_ok=True)
 
-    return tokenized_dataset
+            img = Image.open(img_path).convert("RGB")
+            img = img.resize(IMG_SIZE)
+            img.save(os.path.join(label_dir, os.path.basename(img_path)))
 
 if __name__ == "__main__":
-    # Define paths
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-    raw_data_path = os.path.join(project_root, "data/raw/en-fr.csv")
-    processed_data_path = os.path.join(project_root, "data/processed/tokenized_dataset")
-
-    # Preprocess the dataset
-    tokenized_data = preprocess_data(
-        raw_data_path,
-        percentage=100,
-        max_len=128,
-        chunk_size=1000,
-        batch_size=16,
-        save_path=processed_data_path,
-    )
-    if tokenized_data:
-        print(tokenized_data[0])
+    process_and_split_data(test_subset_size=500)  # Use a subset of 500 test images
+    print("Data processing complete!")
