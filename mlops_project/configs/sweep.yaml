@@ -1,0 +1,16 @@
+program: src/cookie_project/train.py
+name: experiment1
+project: ""
+entity: ""
+method: grid
+metric:
+    goal: minimize
+    name: validation_loss
+parameters:
+    lr:
+        values: [0.001, 0.1]
+    batch-size:
+        values: [16, 32, 48]
+    epochs:
+        values: [1, 3, 5]
+run_cap: 20
