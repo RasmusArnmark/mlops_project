@@ -44,7 +44,7 @@ def test_processed_data():
     assert os.path.exists(PROCESSED_DIR), f"{PROCESSED_DIR} does not exist. Run process_and_split_data first."
 
     # Define expected class names (mock data)
-    expected_classes = ["class1", "class2"]
+    expected_classes = ["apple_pie", "Baked Potato"]
 
     # Validate train split
     validate_class_directories("train", expected_classes)
