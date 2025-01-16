@@ -179,9 +179,5 @@ cython_debug/
 # Data
 data/raw
 data/processed
-<<<<<<< HEAD
 wandb
 
-=======
-wandb/
->>>>>>> 84b282d8b9ab64ded9eea75d16ee272380689c0f
