@@ -124,5 +124,15 @@ trainer.train()
 model.save_pretrained(model_output_path)
 tokenizer.save_pretrained(model_output_path)
 
+artifact = wandb.Artifact(
+    name="corrupt_mnist_model",
+    type="model",
+    description="A model trained to classify corrupt MNIST images",
+    metadata={"accuracy": final_accuracy, "precision": final_precision, "recall": final_recall, "f1": final_f1},
+)
+artifact.add_file("model.pth")
+run.log_artifact(artifact)
+
+
 # Finish the WandB run
 wandb.finish()
