@@ -1,39 +1,62 @@
 import os
 from pathlib import Path
-import tempfile
-from mlops_project.src.mlops_project.data import process_and_split_data
+from PIL import Image
+import pytest
+from src.data import process_and_split_data
 
-def test_process_and_split_data():
+PROCESSED_DIR = "data/processed"  # Directory where processed data is saved
+IMG_SIZE = (128, 128)  # Expected image size after processing
+
+
+def count_images_in_split(split_name):
     """
-    Test the data processing and splitting function using a temporary directory.
+    Count the number of images in a specific split (train, val, or test).
     """
-    # Create a temporary directory for raw and processed data
-    with tempfile.TemporaryDirectory() as temp_dir:
-        raw_data_path = os.path.join(temp_dir, "raw")
-        processed_data_path = os.path.join(temp_dir, "processed")
-        os.makedirs(raw_data_path, exist_ok=True)
+    split_path = Path(PROCESSED_DIR) / split_name
+    return sum(1 for _ in split_path.rglob("*.jpg"))
 
-        # Create mock raw data structure
-        class_dirs = ["class1", "class2"]
-        for class_dir in class_dirs:
-            os.makedirs(os.path.join(raw_data_path, class_dir), exist_ok=True)
-            for i in range(3):  # Add 3 sample images per class
-                with open(os.path.join(raw_data_path, class_dir, f"image_{i}.jpg"), "w") as f:
-                    f.write("mock_image_content")
 
-        # Run data processing with test paths
-        process_and_split_data()
+def validate_images_in_split(split_name):
+    """
+    Validate that all images in the specified split have the expected size.
+    """
+    split_path = Path(PROCESSED_DIR) / split_name
+    for img_path in split_path.rglob("*.jpg"):
+        img = Image.open(img_path)
+        assert img.size == IMG_SIZE, f"Image {img_path} has incorrect size: {img.size}"
 
-        # Assertions
-        processed_dir = Path(processed_data_path)
-        assert processed_dir.exists(), "Processed directory was not created"
-        assert (processed_dir / "train").exists(), "Train split was not created"
-        assert (processed_dir / "val").exists(), "Validation split was not created"
-        assert (processed_dir / "test").exists(), "Test split was not created"
 
-        # Check train/val/test splits contain data
-        for split in ["train", "val", "test"]:
-            split_path = processed_dir / split
-            assert len(list(split_path.rglob("*.jpg"))) > 0, f"No images found in {split}"
+def validate_class_directories(split_name, expected_classes):
+    """
+    Validate that all expected class directories exist in the split.
+    """
+    split_path = Path(PROCESSED_DIR) / split_name
+    for class_name in expected_classes:
+        class_dir = split_path / class_name
+        assert class_dir.exists(), f"Class directory {class_name} is missing in {split_name}"
 
-        # The temporary directory and its contents are automatically cleaned up
+
+def test_processed_data():
+    """
+    Test the output of process_and_split_data.
+    """
+    # Ensure processed directory exists
+    assert os.path.exists(PROCESSED_DIR), f"{PROCESSED_DIR} does not exist. Run process_and_split_data first."
+
+    # Define expected class names (mock data)
+    expected_classes = ["class1", "class2"]
+
+    # Validate train split
+    validate_class_directories("train", expected_classes)
+    validate_images_in_split("train")
+    assert count_images_in_split("train") > 0, "No images found in train split"
+
+    # Validate val split
+    validate_class_directories("val", expected_classes)
+    validate_images_in_split("val")
+    assert count_images_in_split("val") > 0, "No images found in val split"
+
+    # Validate test split
+    validate_class_directories("test", expected_classes)
+    validate_images_in_split("test")
+    assert count_images_in_split("test") > 0, "No images found in test split"

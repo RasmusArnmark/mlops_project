@@ -1,5 +1,5 @@
 import torch
-from mlops_project.src.mlops_project.model import FoodCNN
+from src.model import FoodCNN
 
 def test_food_cnn_forward_pass():
     """
