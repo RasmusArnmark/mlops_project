@@ -2,7 +2,7 @@ program: src/mlops_project/train.py
 name: experiment1
 project: "food-classification"
 entity: "rasmusarnmark-danmarks-tekniske-universitet-dtu"
-method: grid
+method: random
 metric:
     goal: minimize
     name: validation_loss
@@ -13,4 +13,4 @@ parameters:
         values: [16, 32, 48]
     epochs:
         values: [3, 5, 7]
-run_cap: 20
+run_cap: 5
