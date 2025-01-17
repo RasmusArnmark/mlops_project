@@ -9,4 +9,5 @@ dvc[gdrive]==2.44.0
 scikit-learn==1.5.2
 pillow==11.0.0
 tdqm==0.0.1
-fsspec[http]==2024.9.0
+fsspec==2024.9.0
+dvc==3.0.1
