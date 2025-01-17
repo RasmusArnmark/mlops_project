@@ -2,3 +2,6 @@
     remote = gcsremote
 ['remote "gcsremote"']
     url = gs://foodclassrae
+['remote "myremote"']
+    url = gs://foodclassrae
+    credentialpath = credentials.json
