@@ -7,7 +7,10 @@ transformers==4.48.0
 wandb==0.15.8
 dvc[gdrive]==2.44.0      
 scikit-learn==1.5.2
+torchvision==0.20.1
 pillow==11.0.0
+numpy==1.26.4
 tdqm==0.0.1
 fsspec==2024.9.0
 dvc-gs==3.0.1
+typer==0.13.1
