@@ -38,7 +38,7 @@ jobs:
       - name: Download Test Data
         run: |
           mkdir -p data/raw
-          gsutil cp -r gs://foodclassrae/data/raw/* data/raw/
+          gsutil cp -r gs://foodclassrae/raw/* data/raw/
       
       - name: Create Processed Directory
         run: mkdir -p data/processed
