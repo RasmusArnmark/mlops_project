@@ -10,4 +10,5 @@ scikit-learn==1.5.2
 pillow==11.0.0
 tdqm==0.0.1
 fsspec==2024.9.0
-dvc==3.0.1
+dvc==3.59.0
+dvc-gs==3.0.1
