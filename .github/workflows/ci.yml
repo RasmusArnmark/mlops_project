@@ -43,10 +43,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
-      # Set up GCloud project
-      - name: Configure gcloud
-        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-
       # Pull DVC-tracked data from GCS
       - name: Pull DVC data from GCS
         env:
