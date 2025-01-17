@@ -15,7 +15,7 @@ def create_environment(ctx: Context) -> None:
         echo=True,
         pty=not WINDOWS,
     )
-
+a = 1
 @task
 def requirements(ctx: Context) -> None:
     """Install project requirements."""
