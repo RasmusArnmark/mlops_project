@@ -1,5 +1,7 @@
 [core]
     remote = gcsremote
+[cache]
+    dir = cache
 ['remote "gcsremote"']
     url = gs://foodclassrae
 ['remote "myremote"']
