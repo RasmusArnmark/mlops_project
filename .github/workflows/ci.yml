@@ -36,20 +36,22 @@ jobs:
           mkdir -p data/raw
           mkdir -p data/processed
 
-      # Authenticate with Google Cloud
-      - id: auth
-        name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-      # Pull DVC-tracked data from GCS
-      - name: Pull DVC data from GCS
+      # Create credentials.json from secret
+      - name: Create credentials.json
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
         run: |
-          pip install dvc[gs]
-          dvc pull
+          echo $GDRIVE_CREDENTIALS_DATA > credentials.json
+
+      # Modify DVC Remote to use credentials
+      - name: Modify DVC Remote
+        run: |
+          dvc remote modify myremote credentialpath credentials.json
+
+      # Pull DVC-tracked data
+      - name: Pull DVC data
+        run: |
+          dvc pull -v
 
       # Preprocess Data
       - name: Preprocess Data
