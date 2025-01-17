@@ -180,4 +180,7 @@ cython_debug/
 data/raw
 data/processed
 wandb
+<<<<<<< HEAD:mlops_project/.gitignore
+=======
 
+>>>>>>> fa7891b2a366561bf397ab1d6cf0db93ad6225f2:.gitignore

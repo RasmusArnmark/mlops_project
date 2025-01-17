@@ -22,7 +22,7 @@ def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
         counter += 1
     return new_path
 
-def train_model(BATCH_SIZE: int = 264, LEARNING_RATE: float = 0.001, EPOCHS: int = 10):
+def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 1):
     # Ensure the model directory exists
     print("Model is training")
     os.makedirs(MODEL_DIR, exist_ok=True)
