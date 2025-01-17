@@ -22,5 +22,5 @@ COPY . /app
 ENV WANDB_API_KEY=${WANDB_API_KEY}
 
 # Default command to execute the training script
-ENTRYPOINT ["python", "src/mlops_project/train.py"]
+ENTRYPOINT ["python", "src/train.py"]
 

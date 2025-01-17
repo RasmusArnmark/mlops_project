@@ -13,6 +13,7 @@ IMG_SIZE = (128, 128)
 DATA_DIR = "data/processed"
 MODEL_DIR = "models"
 
+<<<<<<< HEAD
 def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
     """Generate a new model file path if one already exists."""
     counter = 1
@@ -23,6 +24,9 @@ def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
     return new_path
 
 def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 1):
+=======
+def train_model(BATCH_SIZE: int = 32, LEARNING_RATE: float = 0.001, EPOCHS: int = 10):
+>>>>>>> 3be4939fcb080d565a56de6b2328755edafabef1
     # Ensure the model directory exists
     print("Model is training")
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -105,7 +109,7 @@ def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int 
               f"Val Accuracy: {val_accuracy:.4f}")
 
     # Determine the model path
-    model_path = get_new_model_path(MODEL_DIR, base_name="food_cnn", extension=".pth")
+    model_path = "models/food_cnn.pth"
 
     # Save the trained model
     torch.save(model.state_dict(), model_path)
