@@ -13,7 +13,6 @@ IMG_SIZE = (128, 128)
 DATA_DIR = "data/processed"
 MODEL_DIR = "models"
 
-<<<<<<< HEAD
 def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
     """Generate a new model file path if one already exists."""
     counter = 1
@@ -23,10 +22,7 @@ def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
         counter += 1
     return new_path
 
-def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 1):
-=======
-def train_model(BATCH_SIZE: int = 32, LEARNING_RATE: float = 0.001, EPOCHS: int = 10):
->>>>>>> 3be4939fcb080d565a56de6b2328755edafabef1
+def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 3):
     # Ensure the model directory exists
     print("Model is training")
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -128,3 +124,4 @@ def train_model(BATCH_SIZE: int = 32, LEARNING_RATE: float = 0.001, EPOCHS: int 
 
 if __name__ == "__main__":
     typer.run(train_model)
+
