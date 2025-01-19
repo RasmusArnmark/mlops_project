@@ -4,3 +4,4 @@ outs:
   nfiles: 23873
   path: raw
 
+  hash: md5
