@@ -1,9 +1,4 @@
 [core]
-    remote = gcsremote
-[cache]
-    dir = cache
-['remote "gcsremote"']
-    url = gs://foodclassrae
-['remote "myremote"']
-    url = gs://foodclassrae
-    credentialpath = credentials.json
+    remote = gcsprocessed
+['remote "gcsprocessed"']
+    url = gs://foodclassrae/data/processed

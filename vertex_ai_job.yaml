@@ -1,0 +1,15 @@
+worker_pool_specs:
+  - machine_spec:
+      machine_type: "n1-highmem-2"
+    replica_count: 1
+    container_spec:
+      image_uri: us-central1-docker.pkg.dev/foodclassrae/gcr.io/food-trainer:latest
+      env:
+        - name: WANDB_API_KEY
+          value: "6fdf605a7c35b4eb3fdd7041026e484d1fe54bf8"
+      args:
+        - "--data-dir=data/processed"
+        - "--model-dir=models"
+        - "--batch-size=64"
+        - "--learning-rate=0.001"
+        - "--epochs=10"
