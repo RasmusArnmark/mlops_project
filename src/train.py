@@ -1,5 +1,6 @@
 import os
 import subprocess
+import argparse
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -8,16 +9,10 @@ from torchvision import datasets, transforms
 from google.cloud import storage
 from model import FoodCNN
 import wandb
-import typer
 
 # Hyperparameters
 IMG_SIZE = (128, 128)
-LOCAL_DATA_DIR = "data/processed"
-GCS_BUCKET_NAME = "foodclassrae"  # Your bucket
-GCS_DATA_DIR = f"gs://{GCS_BUCKET_NAME}/data/processed"
-MODEL_DIR = "models"
 
-# Helper Functions
 def download_gcs_data(gcs_path: str, local_path: str):
     """
     Download data from GCS to the local directory.
@@ -32,53 +27,50 @@ def upload_to_gcs(local_path: str, gcs_path: str):
     """
     print(f"Uploading {local_path} to {gcs_path}...")
     client = storage.Client()
-    bucket = client.bucket(GCS_BUCKET_NAME)
-    blob = bucket.blob(gcs_path)
+    bucket_name, blob_name = gcs_path.split("/", 1)
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
     blob.upload_from_filename(local_path)
     print(f"Uploaded {local_path} to {gcs_path}.")
 
-# Main Training Function
-def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 3):
-    # Determine data path based on environment
+def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: float, epochs: int):
+    # Download data from GCS if necessary
     if os.getenv("GCS_BUCKET"):  # Running in GCP
-        if not os.path.exists(LOCAL_DATA_DIR):
-            os.makedirs(LOCAL_DATA_DIR)
-        download_gcs_data(GCS_DATA_DIR, LOCAL_DATA_DIR)
-        DATA_DIR = LOCAL_DATA_DIR
-    else:  # Local environment
-        DATA_DIR = LOCAL_DATA_DIR
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir, exist_ok=True)
+        gcs_data_path = f"gs://{os.getenv('GCS_BUCKET')}/data/processed"
+        download_gcs_data(gcs_data_path, data_dir)
 
     # Ensure the model directory exists
-    print("Model is training")
-    os.makedirs(MODEL_DIR, exist_ok=True)
+    os.makedirs(model_dir, exist_ok=True)
 
     run = wandb.init(
         project="food-classification",
-        config={"BATCH_SIZE": BATCH_SIZE, "LEARNING_RATE": LEARNING_RATE, "EPOCHS": EPOCHS},
+        config={"BATCH_SIZE": batch_size, "LEARNING_RATE": learning_rate, "EPOCHS": epochs},
     )
 
     # Define transforms for the data
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Normalize to [-1, 1]
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
 
     # Load datasets
-    train_data = datasets.ImageFolder(os.path.join(DATA_DIR, "train"), transform=transform)
-    val_data = datasets.ImageFolder(os.path.join(DATA_DIR, "val"), transform=transform)
+    train_data = datasets.ImageFolder(os.path.join(data_dir, "train"), transform=transform)
+    val_data = datasets.ImageFolder(os.path.join(data_dir, "val"), transform=transform)
 
-    train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
 
     # Initialize model, loss function, and optimizer
     num_classes = len(train_data.classes)
     model = FoodCNN(num_classes)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
-    for epoch in range(EPOCHS):
+    for epoch in range(epochs):
         model.train()
         running_loss = 0.0
         correct_train = 0
@@ -124,24 +116,22 @@ def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int 
             "val_accuracy": val_accuracy,
         })
 
-        print(f"Epoch {epoch + 1}/{EPOCHS}, "
+        print(f"Epoch {epoch + 1}/{epochs}, "
               f"Train Loss: {running_loss / len(train_loader):.4f}, "
               f"Val Loss: {val_loss / len(val_loader):.4f}, "
               f"Val Accuracy: {val_accuracy:.4f}")
 
-    # Determine the model path
-    model_path = os.path.join(MODEL_DIR, "food_cnn.pth")
-
-    # Save the trained model locally
+    # Save the model locally
+    model_path = os.path.join(model_dir, "food_cnn.pth")
     torch.save(model.state_dict(), model_path)
     print(f"Model saved locally to {model_path}")
 
-    # Upload the model to GCS
-    if os.getenv("GCS_BUCKET"):  # Running in GCP
-        gcs_model_path = f"models/{os.path.basename(model_path)}"
+    # Upload model to GCS if necessary
+    if os.getenv("GCS_BUCKET"):
+        gcs_model_path = f"{os.getenv('GCS_BUCKET')}/models/food_cnn.pth"
         upload_to_gcs(model_path, gcs_model_path)
 
-    # Save model as a W&B artifact
+    # Log model as a W&B artifact
     artifact = wandb.Artifact(
         name="food_classifier",
         type="model",
@@ -153,4 +143,12 @@ def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int 
 
 
 if __name__ == "__main__":
-    typer.run(train_model)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", type=str, default="data/processed")
+    parser.add_argument("--model-dir", type=str, default="models/")
+    parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--learning-rate", type=float, default=0.001)
+    parser.add_argument("--epochs", type=int, default=3)
+    args = parser.parse_args()
+
+    train_model(args.data_dir, args.model_dir, args.batch_size, args.learning_rate, args.epochs)
