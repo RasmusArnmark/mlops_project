@@ -6,40 +6,26 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from google.cloud import storage
 from model import FoodCNN
 import wandb
 
 # Hyperparameters
 IMG_SIZE = (128, 128)
 
-def download_gcs_data(gcs_path: str, local_path: str):
+def ensure_data_available(data_dir: str):
     """
-    Download data from GCS to the local directory.
+    Ensure data is available locally by running `dvc pull`.
     """
-    print(f"Downloading data from {gcs_path} to {local_path}...")
-    subprocess.run(["gsutil", "-m", "cp", "-r", gcs_path, local_path], check=True)
-    print("Data downloaded successfully.")
-
-def upload_to_gcs(local_path: str, gcs_path: str):
-    """
-    Upload a file to GCS.
-    """
-    print(f"Uploading {local_path} to {gcs_path}...")
-    client = storage.Client()
-    bucket_name, blob_name = gcs_path.split("/", 1)
-    bucket = client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    blob.upload_from_filename(local_path)
-    print(f"Uploaded {local_path} to {gcs_path}.")
+    if not os.path.exists(data_dir):
+        print(f"Running `dvc pull` to fetch data into {data_dir}...")
+        subprocess.run(["dvc", "pull"], check=True)
+        print("Data fetched successfully with DVC.")
+    else:
+        print(f"Data already exists at {data_dir}.")
 
 def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: float, epochs: int):
-    # Download data from GCS if necessary
-    if os.getenv("GCS_BUCKET"):  # Running in GCP
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir, exist_ok=True)
-        gcs_data_path = f"gs://{os.getenv('GCS_BUCKET')}/data/processed"
-        download_gcs_data(gcs_data_path, data_dir)
+    # Ensure data is available
+    ensure_data_available(data_dir)
 
     # Ensure the model directory exists
     os.makedirs(model_dir, exist_ok=True)
@@ -125,11 +111,6 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
     model_path = os.path.join(model_dir, "food_cnn.pth")
     torch.save(model.state_dict(), model_path)
     print(f"Model saved locally to {model_path}")
-
-    # Upload model to GCS if necessary
-    if os.getenv("GCS_BUCKET"):
-        gcs_model_path = f"{os.getenv('GCS_BUCKET')}/models/food_cnn.pth"
-        upload_to_gcs(model_path, gcs_model_path)
 
     # Log model as a W&B artifact
     artifact = wandb.Artifact(
