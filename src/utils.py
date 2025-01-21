@@ -14,11 +14,11 @@ def preprocess_image(image: Image.Image):
     """
     # Define preprocessing transformations
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),  # Resize to model input size
+        transforms.Resize((128, 128)),  # Match training input size
         transforms.ToTensor(),         # Convert to Tensor
-        transforms.Normalize(          # Normalize based on dataset stats
-            mean=[0.485, 0.456, 0.406], 
-            std=[0.229, 0.224, 0.225]
+        transforms.Normalize(          # Normalize to match training stats
+            mean=[0.5, 0.5, 0.5], 
+            std=[0.5, 0.5, 0.5]
         ),
     ])
     return transform(image)
