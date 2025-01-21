@@ -26,7 +26,7 @@ mlops_project/
 ## Dataset
 
 **Food Image Classification Dataset**  
-- **Source**: [Kaggle](https://www.kaggle.com)  
+- **Source**: [Kaggle](https://www.kaggle.com/code/gauravduttakiit/class-dataset-food-image-classification/data)  
 - **Description**: Contains images of various food items categorized into distinct classes such as burgers, pizzas, samosas, fries, and more.  
 - **Structure**: Organized into subdirectories for each class.
 

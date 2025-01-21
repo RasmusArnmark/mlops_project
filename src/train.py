@@ -1,28 +1,53 @@
 import os
+import subprocess
 import torch
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from google.cloud import storage
 from model import FoodCNN
 import wandb
 import typer
 
 # Hyperparameters
 IMG_SIZE = (128, 128)
-DATA_DIR = "data/processed"
+LOCAL_DATA_DIR = "data/processed"
+GCS_BUCKET_NAME = "foodclassrae"  # Your bucket
+GCS_DATA_DIR = f"gs://{GCS_BUCKET_NAME}/data/processed"
 MODEL_DIR = "models"
 
-def get_new_model_path(base_path, base_name="food_cnn", extension=".pth"):
-    """Generate a new model file path if one already exists."""
-    counter = 1
-    new_path = os.path.join(base_path, f"{base_name}{extension}")
-    while os.path.exists(new_path):
-        new_path = os.path.join(base_path, f"{base_name}_{counter}{extension}")
-        counter += 1
-    return new_path
+# Helper Functions
+def download_gcs_data(gcs_path: str, local_path: str):
+    """
+    Download data from GCS to the local directory.
+    """
+    print(f"Downloading data from {gcs_path} to {local_path}...")
+    subprocess.run(["gsutil", "-m", "cp", "-r", gcs_path, local_path], check=True)
+    print("Data downloaded successfully.")
 
-def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 1):
+def upload_to_gcs(local_path: str, gcs_path: str):
+    """
+    Upload a file to GCS.
+    """
+    print(f"Uploading {local_path} to {gcs_path}...")
+    client = storage.Client()
+    bucket = client.bucket(GCS_BUCKET_NAME)
+    blob = bucket.blob(gcs_path)
+    blob.upload_from_filename(local_path)
+    print(f"Uploaded {local_path} to {gcs_path}.")
+
+# Main Training Function
+def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int = 3):
+    # Determine data path based on environment
+    if os.getenv("GCS_BUCKET"):  # Running in GCP
+        if not os.path.exists(LOCAL_DATA_DIR):
+            os.makedirs(LOCAL_DATA_DIR)
+        download_gcs_data(GCS_DATA_DIR, LOCAL_DATA_DIR)
+        DATA_DIR = LOCAL_DATA_DIR
+    else:  # Local environment
+        DATA_DIR = LOCAL_DATA_DIR
+
     # Ensure the model directory exists
     print("Model is training")
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -105,11 +130,16 @@ def train_model(BATCH_SIZE: int = 64, LEARNING_RATE: float = 0.001, EPOCHS: int 
               f"Val Accuracy: {val_accuracy:.4f}")
 
     # Determine the model path
-    model_path = get_new_model_path(MODEL_DIR, base_name="food_cnn", extension=".pth")
+    model_path = os.path.join(MODEL_DIR, "food_cnn.pth")
 
-    # Save the trained model
+    # Save the trained model locally
     torch.save(model.state_dict(), model_path)
-    print(f"Model saved to {model_path}")
+    print(f"Model saved locally to {model_path}")
+
+    # Upload the model to GCS
+    if os.getenv("GCS_BUCKET"):  # Running in GCP
+        gcs_model_path = f"models/{os.path.basename(model_path)}"
+        upload_to_gcs(model_path, gcs_model_path)
 
     # Save model as a W&B artifact
     artifact = wandb.Artifact(

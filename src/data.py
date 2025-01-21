@@ -3,11 +3,12 @@ import shutil
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-import random 
+from google.cloud import storage
 
 # Define input and output paths
-RAW_DATA_DIR = "data/raw"  # Path to the extracted Kaggle dataset
-PROCESSED_DATA_DIR = "data/processed"
+RAW_DATA_DIR = os.getenv("RAW_DATA_DIR", "data/raw")  # Default to local raw data path
+PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR", "data/processed")  # Default to local processed data path
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")  # GCS bucket name
 IMG_SIZE = (128, 128)  # Resize images to this size
 
 def create_directories(base_dir):
@@ -18,16 +19,31 @@ def create_directories(base_dir):
         split_dir = os.path.join(base_dir, split)
         os.makedirs(split_dir, exist_ok=True)
 
-def process_and_split_data(test_subset_size=500):
+def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
+    """
+    Uploads processed data to GCS.
+    """
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+
+    for root, _, files in os.walk(local_folder):
+        for file in files:
+            local_path = os.path.join(root, file)
+            relative_path = os.path.relpath(local_path, local_folder)
+            gcs_path = os.path.join(gcs_folder, relative_path)
+            blob = bucket.blob(gcs_path)
+            blob.upload_from_filename(local_path)
+            print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
+
+def process_and_split_data():
     """
     Process and split the dataset into train/val/test sets.
-    Use only a subset of the test data if specified.
     """
     # Gather all image paths and labels
     all_images = []
     labels = []
     
-    print("starting to process data")
+    print("Starting to process data...")
     for class_name in os.listdir(RAW_DATA_DIR):
         class_path = os.path.join(RAW_DATA_DIR, class_name)
         if os.path.isdir(class_path):
@@ -43,11 +59,6 @@ def process_and_split_data(test_subset_size=500):
     val_images, test_images, val_labels, test_labels = train_test_split(
         temp_images, temp_labels, test_size=0.5, stratify=temp_labels, random_state=42
     )
-
-    # Use a subset of test data
-    if test_subset_size < len(test_images):
-        test_subset = random.sample(list(zip(test_images, test_labels)), test_subset_size)
-        test_images, test_labels = zip(*test_subset)
 
     # Define splits
     splits = {
@@ -68,6 +79,12 @@ def process_and_split_data(test_subset_size=500):
             img = img.resize(IMG_SIZE)
             img.save(os.path.join(label_dir, os.path.basename(img_path)))
 
+    # Upload to GCS if running in the cloud
+    if GCS_BUCKET_NAME:
+        print("Uploading processed data to GCS...")
+        upload_to_gcs(PROCESSED_DATA_DIR, GCS_BUCKET_NAME, "data/processed")
+        print("Processed data uploaded to GCS.")
+
 if __name__ == "__main__":
-    process_and_split_data(test_subset_size=500)  # Use a subset of 500 test images
+    process_and_split_data()
     print("Data processing complete!")
