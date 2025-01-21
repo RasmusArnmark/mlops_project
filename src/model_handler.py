@@ -2,7 +2,7 @@ import os
 import torch
 import torch.nn.functional as F
 from google.cloud import storage
-
+from src.model import FoodCNN
 
 def download_model_from_gcs(bucket_name: str, gcs_model_path: str, local_model_path: str):
     """
@@ -23,7 +23,7 @@ def download_model_from_gcs(bucket_name: str, gcs_model_path: str, local_model_p
     print(f"Model downloaded to {local_model_path}.")
 
 
-def load_model(model_path: str = "models/food_cnn_3.pth", bucket_name: str = None):
+def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = None):
     """
     Load the PyTorch model, either from a local path or GCS if running in the cloud.
 
@@ -43,9 +43,14 @@ def load_model(model_path: str = "models/food_cnn_3.pth", bucket_name: str = Non
         else:
             raise FileNotFoundError(f"Model file not found: {model_path}")
 
-    # Load the model
-    print(f"Loading model from {model_path}...")
-    model = torch.load(model_path, map_location=torch.device("cpu"))
+    # Recreate the model architecture
+    print(f"Recreating model architecture for {model_path}...")
+    model = FoodCNN(num_classes=len(CLASS_MAPPING))  # Ensure num_classes matches CLASS_MAPPING
+
+    # Load the state dictionary
+    print(f"Loading state dictionary from {model_path}...")
+    state_dict = torch.load(model_path, map_location=torch.device("cpu"))
+    model.load_state_dict(state_dict)
     model.eval()  # Set the model to evaluation mode
     print("Model loaded successfully.")
     return model
