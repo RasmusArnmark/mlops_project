@@ -3,7 +3,7 @@ worker_pool_specs:
       machine_type: "n1-highmem-2"
     replica_count: 1
     container_spec:
-      image_uri: us-central1-docker.pkg.dev/foodclassrae/gcr.io/food-trainer:latest
+      image_uri: gcr.io/foodclassrae/food-trainer:latest
       env:
         - name: WANDB_API_KEY
           value: "6fdf605a7c35b4eb3fdd7041026e484d1fe54bf8"
