@@ -7,5 +7,5 @@ class FastAPILoadTestUser(HttpUser):
     @task
     def test_predict(self):
         """Send a test image to the /predict/ endpoint."""
-        with open("tests/test_image.jpg", "rb") as img:  # Replace with your test image path
+        with open("test_image/sample.jpg", "rb") as img:  # Replace with your test image path
             self.client.post("/predict/", files={"file": img})
