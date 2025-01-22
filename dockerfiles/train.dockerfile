@@ -15,8 +15,5 @@ COPY . /app/
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set environment variables (example for Google Cloud credentials)
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/src/service-account.json
-
 # Default command to execute the training script
 ENTRYPOINT ["python", "src/train.py"]
