@@ -32,6 +32,9 @@ async def predict(file: UploadFile = File(...)):
     try:
         # Run prediction
         prediction = predict_image(processed_image, model, class_mapping=CLASS_MAPPING)
+
+        # Save the data and prediction
+        
     except Exception as e:
         return JSONResponse(content={"error": f"Model prediction failed: {str(e)}"}, status_code=500)
 
