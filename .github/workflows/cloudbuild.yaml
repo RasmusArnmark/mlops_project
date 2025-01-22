@@ -30,8 +30,8 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker build -f dockerfiles/train.dockerfile -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcr.io/train-image:latest .
+          docker build -f dockerfiles/train.dockerfile -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/food-class/train-image:latest .
 
       - name: Push Docker image to Artifact Registry
         run: |
-          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcr.io/train-image:latest
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/food-class/train-image:latest
