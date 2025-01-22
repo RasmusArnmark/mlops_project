@@ -168,5 +168,3 @@ if __name__ == "__main__":
     # Upload processed data to GCS
     upload_to_gcs_with_gsutil("data/processed", GCS_BUCKET_NAME, "data/processed")
     print("Data upload to GCS complete!")
-
-
