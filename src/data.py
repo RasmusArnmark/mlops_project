@@ -1,39 +1,46 @@
 import os
+import shutil
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from google.cloud import storage
-from kaggle.api.kaggle_api_extended import KaggleApi  # Kaggle API
+import kagglehub
 
-# Define paths and constants
-RAW_DATA_DIR = "data/raw"
-PROCESSED_DATA_DIR = "data/processed"
-GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")
-GCS_PROCESSED_FOLDER = "data/processed"
+# Define input and output paths
+RAW_DATA_DIR = os.getenv("RAW_DATA_DIR", "data/raw")  # Default to local raw data path
+PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR", "data/processed")  # Default to local processed data path
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")  # GCS bucket name
 IMG_SIZE = (128, 128)  # Resize images to this size
+KAGGLE_DATASET_NAME = "harishkumardatalab/food-image-classification-dataset"  # Kaggle dataset identifier
 
-def ensure_directories():
+def download_from_kaggle():
     """
-    Ensure that the necessary local directories exist.
+    Download the dataset from Kaggle if it's not already downloaded.
     """
-    os.makedirs(RAW_DATA_DIR, exist_ok=True)
-    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
+    if not os.path.exists(RAW_DATA_DIR):
+        print(f"Dataset not found. Downloading from Kaggle...")
+        path = kagglehub.dataset_download(KAGGLE_DATASET_NAME)
+        dataset_name = os.path.basename(path)
+        target_path = os.path.join(RAW_DATA_DIR, dataset_name)
+        # Move the dataset folder (or file) to the target directory
+        shutil.move(path, target_path)
+        print(f"Dataset moved to: {target_path}")
+        print(f"Dataset downloaded to {RAW_DATA_DIR}")
+    else:
+        print(f"Dataset already exists at {RAW_DATA_DIR}")
 
-def download_kaggle_dataset(dataset: str, download_dir: str):
+def create_directories(base_dir):
     """
-    Downloads a dataset from Kaggle to a local directory.
+    Create necessary directories for processed data.
     """
-    print(f"Downloading dataset {dataset} from Kaggle...")
-    api = KaggleApi()
-    api.authenticate()
-    api.dataset_download_files(dataset, path=download_dir, unzip=True)
-    print(f"Dataset downloaded and extracted to {download_dir}.")
+    for split in ['train', 'val', 'test']:
+        split_dir = os.path.join(base_dir, split)
+        os.makedirs(split_dir, exist_ok=True)
 
 def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
     """
-    Upload processed data to GCS.
+    Uploads processed data to GCS.
     """
-    print(f"Uploading data from {local_folder} to gs://{bucket_name}/{gcs_folder}...")
     client = storage.Client()
     bucket = client.bucket(bucket_name)
 
@@ -46,29 +53,15 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
             blob.upload_from_filename(local_path)
             print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
-def create_directories(base_dir):
-    """
-    Create necessary directories for processed data.
-    """
-    for split in ['train', 'val', 'test']:
-        split_dir = os.path.join(base_dir, split)
-        os.makedirs(split_dir, exist_ok=True)
-
 def process_and_split_data():
     """
-    Process and split the dataset into train/val/test sets and upload to GCS.
+    Process and split the dataset into train/val/test sets.
     """
-    # Ensure required directories exist
-    ensure_directories()
-
-    # Download dataset from Kaggle
-    download_kaggle_dataset("username/dataset-name", RAW_DATA_DIR)
-
     # Gather all image paths and labels
     all_images = []
     labels = []
-
-    print("Processing raw data...")
+    
+    print("Starting to process data...")
     for class_name in os.listdir(RAW_DATA_DIR):
         class_path = os.path.join(RAW_DATA_DIR, class_name)
         if os.path.isdir(class_path):
@@ -92,7 +85,7 @@ def process_and_split_data():
         "test": (test_images, test_labels)
     }
 
-    # Process and save images locally
+    # Process and save images
     create_directories(PROCESSED_DATA_DIR)
     for split, (images, split_labels) in splits.items():
         print(f"Processing {split} data...")
@@ -104,14 +97,16 @@ def process_and_split_data():
             img = img.resize(IMG_SIZE)
             img.save(os.path.join(label_dir, os.path.basename(img_path)))
 
-    # Upload processed data to GCS
-    print("Uploading processed data to GCS...")
-    upload_to_gcs(PROCESSED_DATA_DIR, GCS_BUCKET_NAME, GCS_PROCESSED_FOLDER)
-    print("Processed data uploaded to GCS.")
+    # Upload to GCS if running in the cloud
+    if GCS_BUCKET_NAME:
+        print("Uploading processed data to GCS...")
+        upload_to_gcs(PROCESSED_DATA_DIR, GCS_BUCKET_NAME, "data/processed")
+        print("Processed data uploaded to GCS.")
 
 if __name__ == "__main__":
-    if not GCS_BUCKET_NAME:
-        raise ValueError("Environment variable 'GCS_BUCKET' is not set.")
-
+    # Check if the dataset exists, if not, download it
+    download_from_kaggle()
+    
+    # Process the data
     process_and_split_data()
-    print("Data processing and upload complete!")
+    print("Data processing complete!")
