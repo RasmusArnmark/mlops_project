@@ -25,7 +25,7 @@ jobs:
       - name: Auth with GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}  # Add this secret in GitHub
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}  # Add this secret in GitHub
 
       # Step 4: Log in to Google Artifact Registry
       - name: Log in to Google Artifact Registry
