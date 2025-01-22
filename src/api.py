@@ -5,6 +5,10 @@ from io import BytesIO
 import os
 from src.model_handler import load_model, predict_image, CLASS_MAPPING
 from src.utils import preprocess_image
+from google.cloud import storage
+import datetime
+import json
+import numpy as np
 
 app = FastAPI()
 
@@ -33,8 +37,23 @@ async def predict(file: UploadFile = File(...)):
         # Run prediction
         prediction = predict_image(processed_image, model, class_mapping=CLASS_MAPPING)
 
+
+
         # Save the data and prediction
-        
+        client = storage.Client()
+        bucket = client.bucket("foodclassrae")
+        time = datetime.datetime.now(tz=datetime.UTC)
+        # Prepare prediction data
+        data = {
+            "predicted": prediction,
+            "image": processed_image.flatten().tolist(),
+            "timestamp": datetime.datetime.now(tz=datetime.UTC).isoformat(),
+        }
+        blob = bucket.blob(f"new_data/prediction_{time}.json")
+        blob.upload_from_string(json.dumps(data))
+
+
+
     except Exception as e:
         return JSONResponse(content={"error": f"Model prediction failed: {str(e)}"}, status_code=500)
 
