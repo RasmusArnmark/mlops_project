@@ -9,16 +9,21 @@ RUN apt update && \
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy only the requirements file first to cache dependencies
+# Copy only the requirements file to cache dependencies
 COPY requirements.txt /app/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy only the necessary files for training
+# Copy source code and models
 COPY src/ /app/src/
 COPY models/ /app/models/
-COPY data/ /app/data/
+
+# Ensure data directory exists (Optional)
+RUN mkdir -p /app/data/
+
+# Set environment variables (example for Google Cloud credentials)
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/src/service-account.json
 
 # Default command to execute the training script
 ENTRYPOINT ["python", "src/train.py"]
