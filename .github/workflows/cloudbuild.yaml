@@ -35,8 +35,8 @@ jobs:
       # Step 5: Build the Docker image
       - name: Build the Docker image
         run: |
-          docker build -f dockerfiles/train.dockerfile -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/food-classification/train-image:latest .
-
+          docker buildx build -f dockerfiles/train.dockerfile -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/food-classification/train-image:latest .
+          
       # Step 6: Push Docker image to Artifact Registry
       - name: Push Docker image to Artifact Registry
         run: |
