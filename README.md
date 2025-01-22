@@ -52,7 +52,8 @@ python src/data.py
 Build docker image with 
 docker build -t food-trainer:latest -f dockerfiles/train.dockerfile .
 
-Run training with docker, remember
+Run training with docker
+
 docker run --rm \
     -e GOOGLE_APPLICATION_CREDENTIALS=/app/src/credentials.json \
     -v <path-to-your-credentials-file>:/app/src/credentials.json \
