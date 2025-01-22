@@ -1,4 +1,0 @@
-[core]
-    remote = gcsprocessed
-['remote "gcsprocessed"']
-    url = gs://foodclassrae/data/processed

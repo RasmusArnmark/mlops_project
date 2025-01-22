@@ -1,7 +1,7 @@
-# Base image with Python 3.11
+# Use a lightweight Python base image
 FROM python:3.11-slim AS base
 
-# Install necessary system dependencies for building Python packages
+# Install only the necessary system dependencies
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean && rm -rf /var/lib/apt/lists/*
@@ -9,18 +9,16 @@ RUN apt update && \
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy only the requirements file first to cache pip installations
+# Copy only the requirements file first to cache dependencies
 COPY requirements.txt /app/
 
-# Install Python dependencies (including DVC with GCS support)
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY . /app
-
-# Set environment variables for GCS and W&B
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/service-account.json
-ENV WANDB_API_KEY=${WANDB_API_KEY}
+# Copy only the necessary files for training
+COPY src/ /app/src/
+COPY models/ /app/models/
+COPY data/ /app/data/
 
 # Default command to execute the training script
 ENTRYPOINT ["python", "src/train.py"]
