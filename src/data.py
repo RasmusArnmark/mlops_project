@@ -8,7 +8,7 @@ from kaggle.api.kaggle_api_extended import KaggleApi  # Kaggle API
 # Define paths and constants
 RAW_DATA_DIR = "data/raw"
 PROCESSED_DATA_DIR = "data/processed"
-GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")
+GCS_BUCKET_NAME = "foodclassrae" #os.getenv("GCS_BUCKET")
 GCS_PROCESSED_FOLDER = "data/processed"
 IMG_SIZE = (128, 128)  # Resize images to this size
 
