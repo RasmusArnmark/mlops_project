@@ -3,32 +3,31 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from google.cloud import storage
+from kaggle.api.kaggle_api_extended import KaggleApi  # Kaggle API
 
-# Define input and output paths
+# Define paths and constants
 RAW_DATA_DIR = "data/raw"
 PROCESSED_DATA_DIR = "data/processed"
 GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")
-GCS_RAW_FOLDER = "data/raw"
 GCS_PROCESSED_FOLDER = "data/processed"
 IMG_SIZE = (128, 128)  # Resize images to this size
 
-
-def download_from_gcs(bucket_name: str, gcs_folder: str, local_folder: str):
+def ensure_directories():
     """
-    Download data from GCS to a local directory.
+    Ensure that the necessary local directories exist.
     """
-    print(f"Downloading data from gs://{bucket_name}/{gcs_folder} to {local_folder}...")
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
+    os.makedirs(RAW_DATA_DIR, exist_ok=True)
+    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
 
-    blobs = bucket.list_blobs(prefix=gcs_folder)
-    for blob in blobs:
-        relative_path = os.path.relpath(blob.name, gcs_folder)
-        local_path = os.path.join(local_folder, relative_path)
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        blob.download_to_filename(local_path)
-        print(f"Downloaded {blob.name} to {local_path}")
-
+def download_kaggle_dataset(dataset: str, download_dir: str):
+    """
+    Downloads a dataset from Kaggle to a local directory.
+    """
+    print(f"Downloading dataset {dataset} from Kaggle...")
+    api = KaggleApi()
+    api.authenticate()
+    api.dataset_download_files(dataset, path=download_dir, unzip=True)
+    print(f"Dataset downloaded and extracted to {download_dir}.")
 
 def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
     """
@@ -47,7 +46,6 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
             blob.upload_from_filename(local_path)
             print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
-
 def create_directories(base_dir):
     """
     Create necessary directories for processed data.
@@ -56,14 +54,15 @@ def create_directories(base_dir):
         split_dir = os.path.join(base_dir, split)
         os.makedirs(split_dir, exist_ok=True)
 
-
 def process_and_split_data():
     """
     Process and split the dataset into train/val/test sets and upload to GCS.
     """
-    # Download raw data from GCS
-    print("Downloading raw data...")
-    download_from_gcs(GCS_BUCKET_NAME, GCS_RAW_FOLDER, RAW_DATA_DIR)
+    # Ensure required directories exist
+    ensure_directories()
+
+    # Download dataset from Kaggle
+    download_kaggle_dataset("username/dataset-name", RAW_DATA_DIR)
 
     # Gather all image paths and labels
     all_images = []
@@ -110,10 +109,9 @@ def process_and_split_data():
     upload_to_gcs(PROCESSED_DATA_DIR, GCS_BUCKET_NAME, GCS_PROCESSED_FOLDER)
     print("Processed data uploaded to GCS.")
 
-
 if __name__ == "__main__":
     if not GCS_BUCKET_NAME:
         raise ValueError("Environment variable 'GCS_BUCKET' is not set.")
-    
+
     process_and_split_data()
     print("Data processing and upload complete!")
