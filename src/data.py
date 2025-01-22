@@ -7,27 +7,54 @@ from google.cloud import storage
 import kagglehub
 
 # Define input and output paths
-RAW_DATA_DIR = os.getenv("RAW_DATA_DIR", "data/raw")  # Default to local raw data path
-PROCESSED_DATA_DIR = os.getenv("PROCESSED_DATA_DIR", "data/processed")  # Default to local processed data path
 GCS_BUCKET_NAME = os.getenv("GCS_BUCKET")  # GCS bucket name
 IMG_SIZE = (128, 128)  # Resize images to this size
-KAGGLE_DATASET_NAME = "harishkumardatalab/food-image-classification-dataset"  # Kaggle dataset identifier
 
 def download_from_kaggle():
     """
-    Download the dataset from Kaggle if it's not already downloaded.
+    Download the dataset from Kaggle and structure it correctly.
     """
-    if not os.path.exists(RAW_DATA_DIR):
-        print(f"Dataset not found. Downloading from Kaggle...")
-        path = kagglehub.dataset_download(KAGGLE_DATASET_NAME)
-        dataset_name = os.path.basename(path)
-        target_path = os.path.join(RAW_DATA_DIR, dataset_name)
-        # Move the dataset folder (or file) to the target directory
-        shutil.move(path, target_path)
-        print(f"Dataset moved to: {target_path}")
-        print(f"Dataset downloaded to {RAW_DATA_DIR}")
-    else:
-        print(f"Dataset already exists at {RAW_DATA_DIR}")
+    # Specify the dataset name from Kaggle
+    dataset_name = "harishkumardatalab/food-image-classification-dataset"
+    
+    # Specify the directory paths
+    raw_data_dir = "data/raw"
+    processed_data_dir = "data/processed"
+    
+    # Ensure both directories exist; create them if they don't
+    os.makedirs(raw_data_dir, exist_ok=True)
+    os.makedirs(processed_data_dir, exist_ok=True)
+
+    # Download the dataset
+    print("Downloading dataset...")
+    path = kagglehub.dataset_download(dataset_name)
+    
+    print("Dataset downloaded successfully!")
+    print("Dataset files are located at:", path)
+
+    # Dynamically find the correct dataset folder
+    dataset_root = path
+    print("Searching for dataset root...")
+
+    while True:
+        subfolders = [os.path.join(dataset_root, d) for d in os.listdir(dataset_root) if os.path.isdir(os.path.join(dataset_root, d))]
+        if len(subfolders) == 1:  # If there's only one folder, go deeper
+            dataset_root = subfolders[0]
+            print(f"Found nested folder: {dataset_root}")
+        else:  # If we find multiple folders or files, stop searching
+            break
+
+    # Move the dataset folder to 'data/raw'
+    print("Moving dataset to 'data/raw'...")
+    target_path = os.path.join(raw_data_dir, os.path.basename(dataset_root))
+
+    # Move the dataset folder (or file) to the target directory
+    shutil.move(dataset_root, target_path)
+    print(f"Dataset moved to: {target_path}")
+    
+    return target_path
+
+
 
 def create_directories(base_dir):
     """
@@ -37,10 +64,12 @@ def create_directories(base_dir):
         split_dir = os.path.join(base_dir, split)
         os.makedirs(split_dir, exist_ok=True)
 
+
 def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
     """
     Uploads processed data to GCS.
     """
+    print(f"Uploading data from {local_folder} to gs://{bucket_name}/{gcs_folder}...")
     client = storage.Client()
     bucket = client.bucket(bucket_name)
 
@@ -53,22 +82,36 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
             blob.upload_from_filename(local_path)
             print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
+
 def process_and_split_data():
     """
     Process and split the dataset into train/val/test sets.
     """
+    raw_data_dir = "data/raw/Food Classification dataset"
+    processed_data_dir = "data/processed"
+    # Check if the dataset exists in the expected path
+    if not os.path.exists(raw_data_dir):
+        raise ValueError(f"Dataset not found at {raw_data_dir}. Please download it first.")
+
     # Gather all image paths and labels
     all_images = []
     labels = []
     
     print("Starting to process data...")
-    for class_name in os.listdir(RAW_DATA_DIR):
-        class_path = os.path.join(RAW_DATA_DIR, class_name)
+    for class_name in os.listdir(raw_data_dir):
+        class_path = os.path.join(raw_data_dir, class_name)
         if os.path.isdir(class_path):
             for img_name in os.listdir(class_path):
                 img_path = os.path.join(class_path, img_name)
                 all_images.append(img_path)
                 labels.append(class_name)
+
+    # Validate dataset size
+    if len(all_images) < 3:
+        raise ValueError(
+            f"Insufficient data for splitting. Found only {len(all_images)} samples. "
+            "Ensure the dataset has at least 3 samples for train, val, and test splits."
+        )
 
     # Split into train, val, and test sets
     train_images, temp_images, train_labels, temp_labels = train_test_split(
@@ -86,27 +129,42 @@ def process_and_split_data():
     }
 
     # Process and save images
-    create_directories(PROCESSED_DATA_DIR)
+    create_directories(processed_data_dir)
     for split, (images, split_labels) in splits.items():
         print(f"Processing {split} data...")
         for img_path, label in tqdm(zip(images, split_labels), total=len(images)):
-            label_dir = os.path.join(PROCESSED_DATA_DIR, split, label)
+            label_dir = os.path.join(processed_data_dir, split, label)
             os.makedirs(label_dir, exist_ok=True)
 
             img = Image.open(img_path).convert("RGB")
             img = img.resize(IMG_SIZE)
             img.save(os.path.join(label_dir, os.path.basename(img_path)))
 
-    # Upload to GCS if running in the cloud
-    if GCS_BUCKET_NAME:
-        print("Uploading processed data to GCS...")
-        upload_to_gcs(PROCESSED_DATA_DIR, GCS_BUCKET_NAME, "data/processed")
-        print("Processed data uploaded to GCS.")
+    # Upload processed data to GCS
+
+import subprocess
+
+def upload_to_gcs_with_gsutil(local_folder: str, bucket_name: str, gcs_folder: str):
+    """
+    Upload a local folder to GCS using `gsutil` for faster performance.
+    """
+    gcs_path = f"gs://{bucket_name}/{gcs_folder}"
+    print(f"Uploading {local_folder} to {gcs_path} using gsutil...")
+    try:
+        subprocess.run(["gsutil", "-m", "cp", "-r", local_folder, gcs_path], check=True)
+        print(f"Upload to {gcs_path} completed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during upload to GCS: {e}")
 
 if __name__ == "__main__":
-    # Check if the dataset exists, if not, download it
-    download_from_kaggle()
+    # Ensure dataset is downloaded
+    if not os.path.exists("data/raw/Food Classification dataset"):
+        download_from_kaggle()
     
     # Process the data
     process_and_split_data()
     print("Data processing complete!")
+
+    # Upload processed data to GCS
+    upload_to_gcs_with_gsutil("data/processed", GCS_BUCKET_NAME, "data/processed")
+    print("Data upload to GCS complete!")

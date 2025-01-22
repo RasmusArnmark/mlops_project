@@ -181,3 +181,4 @@ data/raw
 data/processed
 wandb
 models/*.pth
+src/credentials.json
