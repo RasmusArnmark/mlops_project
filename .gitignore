@@ -182,3 +182,4 @@ data/processed
 wandb
 models/*.pth
 src/credentials.json
+data/new_data
