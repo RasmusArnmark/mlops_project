@@ -22,4 +22,4 @@ COPY . /app
 EXPOSE 8080
 
 # Default command to start the Gradio app
-CMD ["python", "-m", "src/gradio.py"]
+CMD ["python", "-m", "src.gradio"]
