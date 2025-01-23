@@ -5,25 +5,21 @@ from google.cloud import storage
 from src.model import FoodCNN
 
 def download_model_from_gcs(bucket_name: str, gcs_model_path: str, local_model_path: str):
-    """
-    Downloads a model file from GCS to a local path.
+    try:
+        print(f"Downloading model from gs://{bucket_name}/{gcs_model_path} to {local_model_path}...")
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(gcs_model_path)
 
-    Args:
-        bucket_name (str): Name of the GCS bucket.
-        gcs_model_path (str): Path to the model in GCS.
-        local_model_path (str): Path to save the model locally.
-    """
-    print(f"Downloading model from gs://{bucket_name}/{gcs_model_path} to {local_model_path}...")
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
-    blob = bucket.blob(gcs_model_path)
-
-    os.makedirs(os.path.dirname(local_model_path), exist_ok=True)
-    blob.download_to_filename(local_model_path)
-    print(f"Model downloaded to {local_model_path}.")
+        os.makedirs(os.path.dirname(local_model_path), exist_ok=True)
+        blob.download_to_filename(local_model_path)
+        print(f"Model downloaded to {local_model_path}.")
+    except Exception as e:
+        print(f"Error downloading model: {e}")
+        raise
 
 
-def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = None):
+def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = "foodclassrae"):
     """
     Load the PyTorch model, either from a local path or GCS if running in the cloud.
 
@@ -39,7 +35,7 @@ def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = None)
         if bucket_name:
             print("Model not found locally. Attempting to download from GCS...")
             gcs_model_path = os.path.basename(model_path)
-            download_model_from_gcs("foodclassrae", f"{gcs_model_path}", model_path)
+            download_model_from_gcs(bucket_name, model_path, model_path)
         else:
             raise FileNotFoundError(f"Model file not found: {model_path}")
 
@@ -82,40 +78,40 @@ def predict_image(image_tensor, model, class_mapping=None):
 
 # Example class mapping (update as per your model's output)
 CLASS_MAPPING = {
-    0: "apple_pie",
-    1: "Baked Potato",
-    2: "burger",
-    3: "butter_naan",
-    4: "chai",
-    5: "chapati",
-    6: "cheesecake",
-    7: "chicken_curry",
-    8: "chole_bhature",
-    9: "Crispy Chicken",
-    10: "dal_makhani",
-    11: "dhokla",
-    12: "Donut",
-    13: "fried_rice",
-    14: "Fries",
-    15: "Hot Dog",
-    16: "ice_cream",
-    17: "idli",
-    18: "jalebi",
-    19: "kaathi_rolls",
-    20: "kadai_paneer",
-    21: "kulfi",
-    22: "masala_dosa",
-    23: "momos",
-    24: "omelette",
-    25: "paani_puri",
-    26: "pakode",
-    27: "pav_bhaji",
-    28: "pizza",
-    29: "samosa",
-    30: "Sandwich",
-    31: "sushi",
-    32: "Taco",
-    33: "Taquito"
+    0: 'Baked Potato',
+    1: 'Crispy Chicken',
+    2: 'Donut',
+    3: 'Fries',
+    4: 'Hot Dog',
+    5: 'Sandwich',
+    6: 'Taco',
+    7: 'Taquito',
+    8: 'apple_pie',
+    9: 'burger',
+    10: 'butter_naan',
+    11: 'chai',
+    12: 'chapati',
+    13: 'cheesecake',
+    14: 'chicken_curry',
+    15: 'chole_bhature',
+    16: 'dal_makhani',
+    17: 'dhokla',
+    18: 'fried_rice',
+    19: 'ice_cream',
+    20: 'idli',
+    21: 'jalebi',
+    22: 'kaathi_rolls',
+    23: 'kadai_paneer',
+    24: 'kulfi',
+    25: 'masala_dosa',
+    26: 'momos',
+    27: 'omelette',
+    28: 'paani_puri',
+    29: 'pakode',
+    30: 'pav_bhaji',
+    31: 'pizza',
+    32: 'samosa',
+    33: 'sushi',
 }
 
 if __name__ == "__main__":

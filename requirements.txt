@@ -3,7 +3,6 @@ invoke==2.2.0
 kagglehub==0.3.6
 pandas==2.2.3
 torch==2.5.1
-transformers==4.48.0
 wandb==0.15.8
 dvc[gdrive]==2.44.0      
 scikit-learn==1.5.2
