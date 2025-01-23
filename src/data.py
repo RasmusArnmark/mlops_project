@@ -83,12 +83,10 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
             print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
 
-def process_and_split_data():
+def process_and_split_data(raw_data_dir="data/raw/Food Classification dataset", processed_data_dir="data/processed"):
     """
     Process and split the dataset into train/val/test sets.
     """
-    raw_data_dir = "data/raw/Food Classification dataset"
-    processed_data_dir = "data/processed"
     # Check if the dataset exists in the expected path
     if not os.path.exists(raw_data_dir):
         raise ValueError(f"Dataset not found at {raw_data_dir}. Please download it first.")
