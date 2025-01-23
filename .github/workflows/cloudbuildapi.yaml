@@ -1,0 +1,43 @@
+name: Build and Push API Docker Image to Artifact Registry
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull request to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Authenticate with GCP
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Step 4: Log in to Google Artifact Registry
+      - name: Log in to Google Artifact Registry
+        run: |
+          gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      # Step 5: Build the Docker image
+      - name: Build the API Docker image
+        run: |
+          docker build -f dockerfiles/api.dockerfile -t europe-west1-docker.pkg.dev/foodclassrae/food-class/api-image:latest .
+
+      # Step 6: Push Docker image to Artifact Registry
+      - name: Push API Docker image to Artifact Registry
+        run: |
+          docker push europe-west1-docker.pkg.dev/foodclassrae/food-class/api-image:latest

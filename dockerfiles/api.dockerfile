@@ -18,11 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . /app
 
-# Set environment variables (e.g., for Weights & Biases, GCS, etc.)
-ENV WANDB_API_KEY=${WANDB_API_KEY}
+# Expose the port Gradio will run on (8080 for Cloud Run)
+EXPOSE 8080
 
-# Expose the port FastAPI will run on
-EXPOSE 8000
-
-# Default command to start the FastAPI server
-CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command to start the Gradio app
+CMD ["python", "app.py"]

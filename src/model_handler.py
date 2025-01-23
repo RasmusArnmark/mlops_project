@@ -39,7 +39,7 @@ def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = None)
         if bucket_name:
             print("Model not found locally. Attempting to download from GCS...")
             gcs_model_path = os.path.basename(model_path)
-            download_model_from_gcs(bucket_name, f"models/{gcs_model_path}", model_path)
+            download_model_from_gcs(bucket_name, f"{gcs_model_path}", model_path)
         else:
             raise FileNotFoundError(f"Model file not found: {model_path}")
 
