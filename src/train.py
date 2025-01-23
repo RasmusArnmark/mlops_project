@@ -56,6 +56,10 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         config={"BATCH_SIZE": batch_size, "LEARNING_RATE": learning_rate, "EPOCHS": epochs},
     )
 
+    # **Set the device (GPU or CPU)**
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
     # Define transforms for the data
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
@@ -67,13 +71,13 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
     train_data = datasets.ImageFolder(os.path.join(data_dir, "train"), transform=transform)
     val_data = datasets.ImageFolder(os.path.join(data_dir, "val"), transform=transform)
 
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # Initialize model, loss function, and optimizer
     num_classes = len(train_data.classes)
-    model = FoodCNN(num_classes)
-    criterion = nn.CrossEntropyLoss()
+    model = FoodCNN(num_classes).to(device)  # Move model to the device
+    criterion = nn.CrossEntropyLoss().to(device)  # Move loss function to the device
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
@@ -84,6 +88,9 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         total_train = 0
 
         for images, labels in train_loader:
+            # Move data to the device
+            images, labels = images.to(device), labels.to(device)
+
             optimizer.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -104,6 +111,9 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         total_val = 0
         with torch.no_grad():
             for images, labels in val_loader:
+                # Move data to the device
+                images, labels = images.to(device), labels.to(device)
+
                 outputs = model(images)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
@@ -146,6 +156,7 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
     )
     artifact.add_file(model_path)
     run.log_artifact(artifact)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
