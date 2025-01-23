@@ -41,8 +41,8 @@ def load_images_from_directory(directory):
             for img_file in os.listdir(label_dir):
                 img_path = os.path.join(label_dir, img_file)
                 try:
-                    img = Image.open(img_path).convert("L")  # Convert to grayscale
-                    img_array = np.array(img) / 255.0  # Normalize pixel values to [0, 1]
+                    img = Image.open(img_path)  # Convert to grayscale
+                    img_array = np.array(img)  # Normalize pixel values to [0, 1]
                     images.append(img_array)
                     labels.append(label)  # Use folder name as the label
                 except Exception as e:
@@ -88,13 +88,15 @@ def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data/new_
                 image_data = unflatten_data(flattened_image)
                 
                 # Convert numpy array to an image (assuming grayscale)
-                image = Image.fromarray(image_data.transpose(1,2,0).astype(np.uint8))  # Convert to uint8 for image saving
+                image = Image.fromarray(((image_data+ 1) * 127.5).astype(np.uint8), mode="RGB")
+
                 image_filename = json_filename.replace(".json", ".jpg")
+                image_filename = image_filename.replace("prediction", json_data.get("predicted"))
                 
                 # Save the image as a .jpg file
                 image.save(image_filename)
                 print(f"Saved image to {image_filename}")
-            else:
+            else:   
                 print(f"No image data found in {blob.name}")
 
 
@@ -120,8 +122,8 @@ def load_images_from_processed(directory):
                         img_path = os.path.join(label_dir, img_file)
                         
                         try:
-                            img = Image.open(img_path).convert("L")  # Convert to grayscale
-                            img_array = np.array(img) / 255.0  # Normalize pixel values to [0, 1]
+                            img = Image.open(img_path)  # Convert to grayscale
+                            img_array = np.array(img)   # Normalize pixel values to [0, 1]
                             images.append(img_array)
                             labels.append(label)  # Use folder name as the label
                         except Exception as e:
@@ -142,27 +144,25 @@ new_feature = extract_features(new_images)
 
 print("hej")
 
+# Convert old features and labels to a DataFrame
+old_feature_df = pd.DataFrame(
+    old_features, 
+    columns=["Avg_Brightness", "Contrast", "Sharpness"]  # Replace with your feature names
+)
+old_feature_df["Label"] = old_labels
+old_feature_df["Dataset"] = "Old"
 
-# Process new data
-print("Processing new data...")
-download_images_from_bucket()  # Download files to NEW_DATA_DIR
-new_data_df = load_json_data_to_dataframe()
+# Convert new features and labels to a DataFrame
+new_feature_df = pd.DataFrame(
+    new_feature, 
+    columns=["Avg_Brightness", "Contrast", "Sharpness"]  # Replace with your feature names
+)
+new_feature_df["Label"] = new_label
+new_feature_df["Dataset"] = "New"
 
-# Ensure new data includes features
-if "Average Brightness" not in new_data_df.columns:
-    print("New data does not include features. Processing...")
-    new_images, new_labels = load_images_from_directory(NEW_DATA_DIR)
-    new_features = extract_features(new_images)
 
-    # Add features to new data
-    feature_columns = ["Average Brightness", "Contrast", "Sharpness"]
-    new_feature_df = pd.DataFrame(new_features, columns=feature_columns)
-    new_feature_df["Dataset"] = new_labels
-else:
-    new_feature_df = new_data_df
 
-# Save processed new data
-new_feature_df.to_csv(os.path.join(PROCESSED_DATA_DIR, "new_features.csv"), index=False)
+
 
 # Separate reference and current data
 print("Generating data drift report...")
@@ -172,5 +172,5 @@ current_data = new_feature_df.drop(columns=["Dataset"])
 # Generate a data drift report
 report = Report(metrics=[DataDriftTable()])
 report.run(reference_data=reference_data, current_data=current_data)
-report.save_html(os.path.join(PROCESSED_DATA_DIR, "data_drift.html"))
+report.save_html("data_drift.html")
 print("Data drift report saved.")

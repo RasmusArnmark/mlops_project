@@ -30,6 +30,7 @@ async def predict(file: UploadFile = File(...)):
         # Load and preprocess the image
         image = Image.open(BytesIO(await file.read()))
         processed_image = preprocess_image(image)
+        print(np.shape(processed_image))
     except Exception as e:
         return JSONResponse(content={"error": f"Image preprocessing failed: {str(e)}"}, status_code=400)
 
