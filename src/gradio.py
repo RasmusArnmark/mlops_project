@@ -26,10 +26,9 @@ def gradio_interface(image):
 
 # Set up Gradio interface
 gr.Interface(
-    fn=gradio_interface,  # Function to handle input/output
-    inputs=gr.Image(type="pil"),  # Accepts PIL Image objects
-    outputs="text",  # Outputs text (predicted class)
+    fn=gradio_interface,  # Your prediction function
+    inputs=gr.Image(type="pil"),  # Image input
+    outputs="text",  # Text output
     title="Food Image Classification",
     description="Upload a food image, and the model will classify it into one of the food categories."
-).launch()
-
+).launch(server_port=8080, server_name="0.0.0.0")
