@@ -8,7 +8,6 @@ on:
     branches:
       - main
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,6 +26,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements_dev.txt
+
+      # Linting step
+      - name: Run linter
+        run: |
+          pip install flake8
+          flake8 src/ --max-line-length=88
 
       # Authenticate with Google Cloud using the recommended action
       - id: 'auth'
