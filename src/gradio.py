@@ -6,7 +6,7 @@ from src.utils import preprocess_image
 
 # Load the model
 model_path = "models/food_cnn.pth"  # Adjust the path as needed
-model = load_model(model_path)
+model = load_model(model_path, bucket_name="foodclassrae")
 
 # Define the function Gradio will use
 def gradio_interface(image):
