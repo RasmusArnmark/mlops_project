@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mlops_project"
 version = "0.0.1"
-description = "Using Bert to classify fake news"
+description = "Classify food images"
 authors = [
   { name = "Amalie, Elias and Rasmus", email = "your@email.com" },
 ]
