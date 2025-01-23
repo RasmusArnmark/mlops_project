@@ -17,7 +17,7 @@ def preprocess_image(image: Image.Image):
         transforms.Resize((128, 128)),  # Resize to match model input size
         transforms.ToTensor(),         # Convert image to Tensor
     ])
-
+    
     # Apply transformations
     tensor = transform(image)  # Shape: [3, 128, 128]
 

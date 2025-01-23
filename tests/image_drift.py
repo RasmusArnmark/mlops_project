@@ -7,6 +7,7 @@ from evidently.report import Report
 import json
 from google.cloud import storage
 import glob
+import torch
 
 # Define directories
 PROCESSED_DATA_DIR = "data/processed"
@@ -60,7 +61,7 @@ def unflatten_data(flat_data):
     image_data = np.array(flat_data).reshape((3, 128, 128))
     return image_data
 
-def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data/new_data"):
+def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data"):
     """
     Download JSON files from a GCS bucket, unflatten the image data, 
     and save it as JPG files in the specified directory.
@@ -84,18 +85,29 @@ def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data/new_
             # Unflatten the image data
             # Assuming the image data is stored under the key 'image' and is flattened
             if 'image' in json_data:
-                flattened_image = json_data['image']
-                image_data = unflatten_data(flattened_image)
-                
-                # Convert numpy array to an image (assuming grayscale)
-                image = Image.fromarray(((image_data+ 1) * 127.5).astype(np.uint8), mode="RGB")
+                image_data = np.array(json_data['image'])
 
-                image_filename = json_filename.replace(".json", ".jpg")
-                image_filename = image_filename.replace("prediction", json_data.get("predicted"))
-                
-                # Save the image as a .jpg file
-                image.save(image_filename)
-                print(f"Saved image to {image_filename}")
+                #flattened_image = json_data['image']
+                #image_data = unflatten_data(flattened_image)
+
+                # Reshape to 3x128x128 if needed
+                # image_data = image_data.reshape(3, 128, 128)
+
+                # Convert the image data to RGB format
+                # Image data is assumed to be normalized between -1 and 1, so scale it to 0-255 range
+                image_data = ((image_data + 1) * 127.5)
+                #image_data = image_data.reshape(128,128,3)
+                image_data = torch.from_numpy(image_data)
+                image_data = image_data.permute(1,2,0).numpy
+                # Merge the 3 color channels into an RGB image (height x width x 3)
+                #image_data = np.moveaxis(image_data, 0, -1)  # Move the channels to the last dimension
+                #image_data = image_data.numpy
+                # Convert numpy array to an image (RGB)
+                image_data = np.array(image_data)
+                image = Image.fromarray(image_data.astype(np.uint8), mode="RGB")
+                # Prepare the filename
+                #image_filename = json_filename.replace(".json", ".jpg")
+                image.save(f'data/new_data/{json_data['predicted']}_{json_data['timestamp']}.jpg')
             else:   
                 print(f"No image data found in {blob.name}")
 
@@ -132,8 +144,8 @@ def load_images_from_processed(directory):
 
 
 print('Begin old features')
-old_images, old_labels = load_images_from_processed("data/processed")
-old_features = extract_features(old_images)
+#old_images, old_labels = load_images_from_processed("data/processed")
+#old_features = extract_features(old_images)
 
 
 print('Downloading from bucket')
@@ -142,7 +154,6 @@ download_images_from_bucket()
 new_images, new_label = load_images_from_directory("data/new_data")
 new_feature = extract_features(new_images)
 
-print("hej")
 
 # Convert old features and labels to a DataFrame
 old_feature_df = pd.DataFrame(

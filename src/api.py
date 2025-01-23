@@ -9,6 +9,7 @@ from google.cloud import storage
 import datetime
 import json
 import numpy as np
+import torch
 
 app = FastAPI()
 
@@ -30,7 +31,6 @@ async def predict(file: UploadFile = File(...)):
         # Load and preprocess the image
         image = Image.open(BytesIO(await file.read()))
         processed_image = preprocess_image(image)
-        print(np.shape(processed_image))
     except Exception as e:
         return JSONResponse(content={"error": f"Image preprocessing failed: {str(e)}"}, status_code=400)
 
@@ -45,12 +45,18 @@ async def predict(file: UploadFile = File(...)):
         bucket = client.bucket("foodclassrae")
         time = datetime.datetime.now(tz=datetime.UTC)
         # Prepare prediction data
+
+        #img = Image.open(img_path).convert("RGB")
+        #img = img.resize((128,128))
+        #img.save(os.path.join(label_dir, os.path.basename(img_path)))
+        # processed_image = processed_image.resize(3,128,128)
+        print(np.shape(torch.squeeze(processed_image)))
         data = {
             "predicted": prediction,
-            "image": processed_image.flatten().tolist(),
+            "image": torch.squeeze(processed_image).tolist(),
             "timestamp": datetime.datetime.now(tz=datetime.UTC).isoformat(),
         }
-        blob = bucket.blob(f"new_data/prediction_{time}.json")
+        blob = bucket.blob(f"new_data/{prediction}_{time}.json")
         blob.upload_from_string(json.dumps(data))
 
 
