@@ -1,62 +1,68 @@
 import os
 from pathlib import Path
 from PIL import Image
+import shutil
 import pytest
 from src.data import process_and_split_data
 
-PROCESSED_DIR = "data/processed"  # Directory where processed data is saved
+# Constants
+TEST_RAW_DIR = "tests/test_image"  # Directory with test images
+TEST_PROCESSED_DIR = "tests/test_processed"  # Directory for processed images
 IMG_SIZE = (128, 128)  # Expected image size after processing
+EXPECTED_SPLITS = ["train", "val", "test"]  # Expected splits
+EXPECTED_CLASSES = ["class1", "class2"]  # Replace with actual class names
 
 
-def count_images_in_split(split_name):
+def setup_test_environment():
     """
-    Count the number of images in a specific split (train, val, or test).
+    Prepare the test environment by ensuring clean test_processed directory.
     """
-    split_path = Path(PROCESSED_DIR) / split_name
-    return sum(1 for _ in split_path.rglob("*.jpg"))
+    # Ensure the processed directory is empty
+    if os.path.exists(TEST_PROCESSED_DIR):
+        shutil.rmtree(TEST_PROCESSED_DIR)
+    os.makedirs(TEST_PROCESSED_DIR, exist_ok=True)
 
 
-def validate_images_in_split(split_name):
+def validate_split_distribution():
     """
-    Validate that all images in the specified split have the expected size.
+    Ensure all splits (train, val, test) exist and have at least one image.
     """
-    split_path = Path(PROCESSED_DIR) / split_name
-    for img_path in split_path.rglob("*.jpg"):
-        img = Image.open(img_path)
-        assert img.size == IMG_SIZE, f"Image {img_path} has incorrect size: {img.size}"
+    for split in EXPECTED_SPLITS:
+        split_dir = Path(TEST_PROCESSED_DIR) / split
+        assert split_dir.exists(), f"Split directory {split} is missing."
+        assert sum(1 for _ in split_dir.rglob("*.jpg")) > 0, f"No images found in {split} split."
 
 
-def validate_class_directories(split_name, expected_classes):
+def validate_class_directories():
     """
-    Validate that all expected class directories exist in the split.
+    Ensure all expected classes exist within each split.
     """
-    split_path = Path(PROCESSED_DIR) / split_name
-    for class_name in expected_classes:
-        class_dir = split_path / class_name
-        assert class_dir.exists(), f"Class directory {class_name} is missing in {split_name}"
+    for split in EXPECTED_SPLITS:
+        for class_name in EXPECTED_CLASSES:
+            class_dir = Path(TEST_PROCESSED_DIR) / split / class_name
+            assert class_dir.exists(), f"Class directory {class_name} is missing in {split} split."
 
 
-def test_processed_data():
+def validate_image_processing():
     """
-    Test the output of process_and_split_data.
+    Ensure all processed images have the correct size.
     """
-    # Ensure processed directory exists
-    assert os.path.exists(PROCESSED_DIR), f"{PROCESSED_DIR} does not exist. Run process_and_split_data first."
+    for split in EXPECTED_SPLITS:
+        for img_path in Path(TEST_PROCESSED_DIR).rglob("*.jpg"):
+            img = Image.open(img_path)
+            assert img.size == IMG_SIZE, f"Image {img_path} has incorrect size: {img.size}"
 
-    # Define expected class names (mock data)
-    expected_classes = ["apple_pie", "Baked Potato"]
 
-    # Validate train split
-    validate_class_directories("train", expected_classes)
-    validate_images_in_split("train")
-    assert count_images_in_split("train") > 0, "No images found in train split"
+def test_process_and_split_data():
+    """
+    Full test for the process_and_split_data function.
+    """
+    setup_test_environment()
 
-    # Validate val split
-    validate_class_directories("val", expected_classes)
-    validate_images_in_split("val")
-    assert count_images_in_split("val") > 0, "No images found in val split"
+    # Run the processing function
+    process_and_split_data(raw_data_dir=TEST_RAW_DIR, processed_data_dir=TEST_PROCESSED_DIR)
 
-    # Validate test split
-    validate_class_directories("test", expected_classes)
-    validate_images_in_split("test")
-    assert count_images_in_split("test") > 0, "No images found in test split"
+    # Validate results
+    validate_split_distribution()
+    validate_class_directories()
+    validate_image_processing()
