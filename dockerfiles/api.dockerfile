@@ -21,5 +21,4 @@ COPY . /app
 # Expose the port Gradio will run on (8080 for Cloud Run)
 EXPOSE 8080
 
-# Default command to start the Gradio app
-CMD ["python", "-m", "src.gradio"]
+CMD ["sh", "-c", "export GOOGLE_APPLICATION_CREDENTIALS=/app/src/credentials.json && python -m src.gradio"]
