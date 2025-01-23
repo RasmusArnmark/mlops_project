@@ -69,7 +69,8 @@ def predict_image(image_tensor, model, class_mapping=None):
         str: Predicted class label or class index.
     """
     with torch.no_grad():
-        outputs = model(image_tensor.unsqueeze(0))  # Add batch dimension
+        # Pass the tensor directly to the model (batch dimension already added)
+        outputs = model(image_tensor)  # No need for unsqueeze here
         probabilities = F.softmax(outputs, dim=1)
         class_idx = torch.argmax(probabilities, dim=1).item()
 

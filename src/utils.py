@@ -5,20 +5,23 @@ from PIL import Image
 def preprocess_image(image: Image.Image):
     """
     Preprocess the input image for the PyTorch model.
-    
+
     Args:
-        image (PIL.Image): Input image.
-        
+        image (PIL.Image.Image): Input image.
+
     Returns:
-        torch.Tensor: Preprocessed image tensor.
+        torch.Tensor: Preprocessed image tensor with shape [1, 3, 128, 128].
     """
     # Define preprocessing transformations
     transform = transforms.Compose([
-        transforms.Resize((128, 128)),  # Match training input size
-        transforms.ToTensor(),         # Convert to Tensor
-        transforms.Normalize(          # Normalize to match training stats
-            mean=[0.5, 0.5, 0.5], 
-            std=[0.5, 0.5, 0.5]
-        ),
+        transforms.Resize((128, 128)),  # Resize to match model input size
+        transforms.ToTensor(),         # Convert image to Tensor
     ])
-    return transform(image)
+
+    # Apply transformations
+    tensor = transform(image)  # Shape: [3, 128, 128]
+
+    # Add batch dimension here
+    tensor = tensor.unsqueeze(0)  # Shape: [1, 3, 128, 128]
+    return tensor
+
