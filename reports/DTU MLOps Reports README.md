@@ -48,56 +48,56 @@ will check the repositories and the code to verify your answers.
 
 ### Week 1
 
-* [ ] Create a git repository (M5)
-* [ ] Make sure that all team members have write access to the GitHub repository (M5)
-* [ ] Create a dedicated environment for you project to keep track of your packages (M2)
-* [ ] Create the initial file structure using cookiecutter with an appropriate template (M6)
-* [ ] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
-* [ ] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
-* [ ] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
+* [X] Create a git repository (M5)
+* [X] Make sure that all team members have write access to the GitHub repository (M5)
+* [X] Create a dedicated environment for you project to keep track of your packages (M2)
+* [X] Create the initial file structure using cookiecutter with an appropriate template (M6)
+* [X] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
+* [X] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
+* [X] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
     are using (M2+M6)
-* [ ] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
-* [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
-* [ ] Setup version control for your data or part of your data (M8)
+* [X] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
+* [X] Do a bit of code typing and remember to document essential parts of your code (M7)
+* [X] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
-* [ ] Construct one or multiple docker files for your code (M10)
-* [ ] Build the docker files locally and make sure they work as intended (M10)
-* [ ] Write one or multiple configurations files for your experiments (M11)
+* [X] Construct one or multiple docker files for your code (M10)
+* [X] Build the docker files locally and make sure they work as intended (M10)
+* [X] Write one or multiple configurations files for your experiments (M11)
 * [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
+* [X] Use profiling to optimize your code (M12)
 * [ ] Use logging to log important events in your code (M14)
-* [ ] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
-* [ ] Consider running a hyperparameter optimization sweep (M14)
+* [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
+* [X] Consider running a hyperparameter optimization sweep (M14)
 * [ ] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 ### Week 2
 
-* [ ] Write unit tests related to the data part of your code (M16)
-* [ ] Write unit tests related to model construction and or model training (M16)
-* [ ] Calculate the code coverage (M16)
-* [ ] Get some continuous integration running on the GitHub repository (M17)
+* [X] Write unit tests related to the data part of your code (M16)
+* [X] Write unit tests related to model construction and or model training (M16)
+* [X] Calculate the code coverage (M16)
+* [X] Get some continuous integration running on the GitHub repository (M17)
 * [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-* [ ] Add a linting step to your continuous integration (M17)
+* [X] Add a linting step to your continuous integration (M17)
 * [ ] Add pre-commit hooks to your version control setup (M18)
-* [ ] Add a continues workflow that triggers when data changes (M19)
+* [X] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
-* [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
-* [ ] Create a trigger workflow for automatically building your docker images (M21)
-* [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
+* [X] Create a trigger workflow for automatically building your docker images (M21)
+* [X] Get your model training in GCP using either the Engine or Vertex AI (M21)
+* [X] Create a FastAPI application that can do inference using your model (M22)
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [X] Write API tests for your application and setup continues integration for these (M24)
+* [X] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
-* [ ] Create a frontend for your API (M26)
+* [X] Create a frontend for your API (M26)
 
 ### Week 3
 
-* [ ] Check how robust your model is towards data drifting (M27)
+* [X] Check how robust your model is towards data drifting (M27)
 * [ ] Deploy to the cloud a drift detection API (M27)
-* [ ] Instrument your API with a couple of system metrics (M28)
-* [ ] Setup cloud monitoring of your instrumented application (M28)
-* [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
+* [X] Instrument your API with a couple of system metrics (M28)
+* [X] Setup cloud monitoring of your instrumented application (M28)
+* [X] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
@@ -106,10 +106,10 @@ will check the repositories and the code to verify your answers.
 
 * [ ] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
-* [ ] Revisit your initial project description. Did the project turn out as you wanted?
+* [X] Revisit your initial project description. Did the project turn out as you wanted?
 * [ ] Create an architectural diagram over your MLOps pipeline
-* [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Make sure all group members have an understanding about all parts of the project
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -118,7 +118,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+75
 
 ### Question 2
 > **Enter the study number for each member in the group**
@@ -129,7 +129,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 2 fill here ---
+s234800, s234846, s223750
 
 ### Question 3
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
@@ -143,7 +143,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+We used the third-party framework Gradio in our project. We utilized the Interface class from Gradio to create an interactive web interface for our API. Gradio allowed us to easily set up an interface where users can upload food images and receive predictions in real-time from our model. This framework helped us quickly prototype and deploy a user-friendly front-end for the backend model, significantly reducing the time spent on creating a custom web interface
 
 ## Coding environment
 
@@ -163,7 +163,12 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+We used pip (inside Conda) to manage our dependencies. The list of dependencies was auto-generated using pipreqs. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:: 
+conda create --name myenv --file requirements.txt
+conda activate myenv
+gcloud auth login
+By running these commands, the team member will be able to set up the same environment and access the necessary resources on GCP
+
 
 ### Question 5
 
@@ -179,7 +184,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 5 fill here ---
+We used the cookiecutter template provided in the course as the foundation for our project. Almost all the default folders from the template were included, but we made some adjustments to suit our needs. For example, under the tests folder, we created subfolders such as one for test images to keep the directory organized and easy to navigate. Additionally, we removed the notebooks folder, as we are not utilizing Jupyter notebooks in this project 
 
 ### Question 6
 
@@ -194,7 +199,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 6 fill here ---
+We implemented a rule to structure our scripts in a function-oriented manner. This approach allowed us to easily reuse functions across different parts of the codebase and ensured that updates could be made in one place without needing to modify multiple instances of the same logic. Additionally, we used linting tools to maintain a clean and readable code format, making it easier to collaborate and avoid errors. Comments were also added throughout the code, as we often worked on different parts simultaneously and needed a way to quickly understand what others had implemented.
+
+In larger projects, function-oriented programming is essential for maintaining scalability and avoiding redundancy. Reusable functions reduce duplication and make debugging and updates more efficient. Similarly, comments are critical in large-scale projects to provide context and ensure that even older code remains understandable over time, especially when multiple developers are involved. These practices collectively improve maintainability and team collaboration.
 
 ## Version control
 
@@ -213,7 +220,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 7 fill here ---
+In total, we implemented 5 tests. We tested our API to ensure that the model was being loaded correctly and performed a load test to evaluate its robustness. For our data.py script, we tested whether the processed images had the correct dimensions, verified that the appropriate image directories were created, and checked if the data splitting between training, validation, and test sets was accurate. 
 
 ### Question 8
 
@@ -228,7 +235,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 8 fill here ---
+The total code coverage of our project is 23%. While this percentage may seem low, we have focused our testing efforts on the parts of the code that are most likely to cause issues and are critical to the functionality of our application. This ensures that the key components of our system are reliable and meet expectations.
+
+Even if we were to achieve 100% code coverage, it would not guarantee that our code is error-free. Code coverage measures which lines of code are executed during testing, but it does not account for the quality or completeness of the test cases. For example, tests might overlook edge cases, unexpected user inputs, or rare runtime conditions. Additionally, some errors can arise due to external dependencies, integration issues, or environmental factors, which may not be fully captured by the tests.
 
 ### Question 9
 
@@ -243,7 +252,11 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 9 fill here ---
+We used branches in our workflow, with each team member working on their own branch to develop and test features independently. This approach kept our work organized and helped avoid conflicts with the main branch. Once a feature or task was completed, we merged the branches directly into the main branch without creating pull requests.
+
+While we didn’t use pull requests, they could have added value to our workflow. Pull requests enable formal code reviews, which can catch bugs, ensure consistency in code style, and maintain a higher level of overall quality. However, we chose not to use pull requests for this project because it was relatively small, and our team had a shared understanding of the purpose and functionality of each script.
+
+For larger projects or teams with less shared context, pull requests would be essential for maintaining code quality, fostering collaboration, and ensuring accountability before merging changes into the main branch.
 
 ### Question 10
 
@@ -258,7 +271,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+We initially attempted to use DVC in our project but encountered an issue where the dvc pull command didn’t work as expected when trying to get our data into the training Docker container. Due to time constraints, we decided not to continue using DVC for this project.
+
+In hindsight, DVC could have been highly beneficial, especially for managing and versioning our datasets. For example, it would allow us to track changes to our datasets over time, ensuring that all team members are working with the same data version. This would also make it easier to reproduce experiments and debug issues by referencing specific dataset versions. Additionally, DVC integrates well with Git, which means that changes to the data pipeline could be tied directly to specific code changes, improving overall traceability and collaboration.
 
 ### Question 11
 
@@ -275,7 +290,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 11 fill here ---
+We have organized our continuous integration into multiple separate workflows to manage different tasks. The first workflow handles linting, running our test scripts, and authenticating with Google Cloud. It ensures that code quality is maintained through tools like flake8 and that all tests are executed properly. Currently, we are testing only on the Ubuntu operating system and using Python version 3.11.
+
+The second workflow is dedicated to building our API Docker image, while the third focuses on building our training Docker image. This separation ensures that each component is built and tested independently, making the process more modular and easier to manage.
+
+At the moment, we are not utilizing caching to optimize build times.
+
+An example of a triggered workflow can be seen here: <https://github.com/RasmusArnmark/mlops_project/actions/workflows/cloudbuildapi.yaml>
 
 ## Running code and tracking experiments
 
@@ -294,7 +315,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 12 fill here ---
+We configured experiments by creating a sweep file to try different values for parameters like batch size, learning rate, and number of epochs. To keep track of the different models trained using the sweep file, we utilized WandB for logging experiment details, monitoring performance, and comparing results. The sweep file allows us to automate and efficiently explore hyperparameter combinations
 
 ### Question 13
 
@@ -309,7 +330,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 13 fill here ---
+To ensure the reproducibility of our experiments, we used WandB (Weights and Biases) to log key hyperparameters and model metrics. Each time an experiment is run, we log important values such as the training accuracy, validation accuracy, and loss for each epoch. Additionally, we set all random seeds to a fixed value (e.g., 42) to ensure consistent initialization and randomness across runs. This makes our models reproducible, as the same seed will produce the same results on each run, provided the environment and dependencies remain unchanged. 
 
 ### Question 14
 
@@ -326,7 +347,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 14 fill here ---
+We track several key metrics to assess the performance and progression of our models. Train accuracy provides an indication of how well the model is learning from the training data, showing us if it’s capturing the necessary patterns. Meanwhile, train loss helps us gauge how closely the model’s predictions match the actual values, and monitoring it ensures that the model is improving as expected.
+
+Validation accuracy is important as it measures how well the model performs on new, unseen data, helping us verify that the model is not overfitting. It is the new unseen data we want our model to be good at predicting. Validation loss offers a similar view but in terms of the error made on the validation set, helping us detect potential overfitting. If the validation loss starts to behave differently from the training loss, it could signal that the model is overfitting.
+
+The number of epochs indicates how many times the model has processed the entire dataset, allowing us to understand how long the model has been trained and track its learning journey.
+
+Here is the screen shot: <img src="figures/wandb.png", width = 100%> 
 
 ### Question 15
 
@@ -341,7 +368,10 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 15 fill here ---
+For our project, we developed two Docker images: one for model training and one for serving the API. To run the training Docker image, we use the following command: `docker run train:latest --epochs=1 --batch-size=16`, But you would not need to specify the parameters, we have set some default parameters. Link to docker file: <https://github.com/RasmusArnmark/mlops_project/blob/main/dockerfiles/train.dockerfile>.
+Using Docker ensures that our training environment is consistent across different systems, eliminating dependency issues. The API image is designed to serve the model, making it easier to deploy. When writing the Dockerfile, we used the cache argument so that if we made a mistake (which we certainly did), we wouldn't have to wait for Docker to reinstall PyTorch each time
+
+By using Docker, we can run our code on various machines without facing compatibility issues. 
 
 ### Question 16
 
