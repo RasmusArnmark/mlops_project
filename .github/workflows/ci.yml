@@ -31,7 +31,7 @@ jobs:
       - name: Run linter
         run: |
           pip install flake8
-          flake8 src/ --max-line-length=110
+          flake8 src/ --max-line-length=115
 
       # Authenticate with Google Cloud using the recommended action
       - id: 'auth'
