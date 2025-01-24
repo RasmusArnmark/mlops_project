@@ -531,7 +531,8 @@ For load testing, we used Locust. We tested the fastapi app by simulating multip
 >
 > Answer:
 
---- question 26 fill here ---
+We implemented prometheus for our gradio app, to monitor metrics like requestcount, we also implemented alerts in Gcloud based on some of those metrics, so we get warnings if the app has a lot of requests. This will help because we know when something might be going wrong with our app, and just to be able to monitor general health. 
+
 
 ## Overall discussion of project
 
