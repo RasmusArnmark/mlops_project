@@ -19,7 +19,7 @@ def download_from_kaggle():
     dataset_name = "harishkumardatalab/food-image-classification-dataset"
     raw_data_dir = "data/raw"
     processed_data_dir = "data/processed"
-    
+
     os.makedirs(raw_data_dir, exist_ok=True)
     os.makedirs(processed_data_dir, exist_ok=True)
 
@@ -77,7 +77,8 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
             print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
 
-def process_and_split_data(raw_data_dir="data/raw/Food Classification dataset", processed_data_dir="data/processed"):
+def process_and_split_data(raw_data_dir="data/raw/Food Classification dataset", 
+                           processed_data_dir="data/processed"):
     """
     Process and split the dataset into train/val/test sets.
     """

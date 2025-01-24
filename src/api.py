@@ -8,7 +8,6 @@ from src.utils import preprocess_image
 from google.cloud import storage
 import datetime
 import json
-import numpy as np
 import torch
 
 app = FastAPI()

@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from google.cloud import storage
 from src.model import FoodCNN
 
+
 def download_model_from_gcs(bucket_name: str, gcs_model_path: str, local_model_path: str):
     """
     Download the model from Google Cloud Storage.
@@ -116,6 +117,7 @@ CLASS_MAPPING = {
     32: 'samosa',
     33: 'sushi',
 }
+
 
 if __name__ == "__main__":
     model = load_model("models/food_cnn_3.pth", bucket_name=os.getenv("GCS_BUCKET"))

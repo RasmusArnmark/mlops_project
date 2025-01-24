@@ -45,9 +45,11 @@ def upload_to_gcs(local_path: str, bucket_name: str, gcs_path: str):
     print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
 
-def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: float, epochs: int):
+def train_model(data_dir: str, model_dir: str, batch_size: int, 
+                learning_rate: float, epochs: int):
     """
-    Train the FoodCNN model using the specified dataset, hyperparameters, and save it to the specified directory.
+    Train the FoodCNN model using the specified dataset, 
+    hyperparameters, and save it to the specified directory.
     """
     if not os.path.exists(data_dir):
         os.makedirs(data_dir, exist_ok=True)
@@ -57,7 +59,8 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
 
     run = wandb.init(
         project="food-classification",
-        config={"BATCH_SIZE": batch_size, "LEARNING_RATE": learning_rate, "EPOCHS": epochs},
+        config={"BATCH_SIZE": batch_size, "LEARNING_RATE": 
+                learning_rate, "EPOCHS": epochs},
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -69,11 +72,15 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ])
 
-    train_data = datasets.ImageFolder(os.path.join(data_dir, "train"), transform=transform)
-    val_data = datasets.ImageFolder(os.path.join(data_dir, "val"), transform=transform)
+    train_data = datasets.ImageFolder(os.path.join(data_dir, "train"), 
+                                      transform=transform)
+    val_data = datasets.ImageFolder(os.path.join(data_dir, "val"), 
+                                    transform=transform)
 
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_data, batch_size=batch_size, 
+                              shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_data, batch_size=batch_size, 
+                            shuffle=False, num_workers=4)
 
     num_classes = len(train_data.classes)
     model = FoodCNN(num_classes).to(device)
@@ -161,4 +168,5 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=3)
     args = parser.parse_args()
 
-    train_model(args.data_dir, args.model_dir, args.batch_size, args.learning_rate, args.epochs)
+    train_model(args.data_dir, args.model_dir, 
+                    args.batch_size, args.learning_rate, args.epochs)

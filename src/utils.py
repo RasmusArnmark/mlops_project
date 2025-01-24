@@ -24,4 +24,3 @@ def preprocess_image(image: Image.Image):
     # Add batch dimension
     tensor = tensor.unsqueeze(0)  # Shape: [1, 3, 128, 128]
     return tensor
-
