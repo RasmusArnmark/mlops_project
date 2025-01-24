@@ -101,7 +101,7 @@ def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data"):
 
                 # Convert the image data to RGB format
                 # Image data is assumed to be normalized between -1 and 1, so scale it to 0-255 range
-                image_data = (image_data + 1) * 127.5
+                image_data = (image_data) * 255
                 #image_data = image_data.reshape(128,128,3)
                 image_data = torch.from_numpy(image_data)
                 image_data = image_data.permute(1,2,0).numpy()
