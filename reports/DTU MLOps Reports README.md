@@ -550,7 +550,7 @@ For load testing, we used Locust. We tested the fastapi app by simulating multip
 >
 > Answer:
 
-We used one billing project where Rasmus was the owner, and everyone had access. As of friday 24th we used almost 20$, with Compute engine costing 12 of the 20$. And storage being the other main expense. 
+We used one billing project where s234826 was the owner, and everyone had access. As of friday 24th we used almost 20$, with Compute engine costing 12 of the 20$. And storage being the other main expense. 
 
 Although it took quite a bit of trial and error, we feel comfortable working the cloud now, and getting a new project up and running, would likely be a lot easier. It does complicate the project though. 
 
