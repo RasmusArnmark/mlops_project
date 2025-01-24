@@ -8,7 +8,7 @@ import kagglehub
 import subprocess
 
 # Define input and output paths
-GCS_BUCKET_NAME = ("foodclassrae")  
+GCS_BUCKET_NAME = ("foodclassrae")
 IMG_SIZE = (128, 128)  # Resize images to this size
 
 
