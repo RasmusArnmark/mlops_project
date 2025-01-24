@@ -20,10 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the source code into the container
 COPY src/ src/
 COPY data/ data/
-COPY output_dir/ output/
 
 # Create the output directories for data
-RUN mkdir -p /data/raw /data/processed
+RUN mkdir -p /data/raw /data/processed output/
 
 
 # Run the data preprocessing script

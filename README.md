@@ -96,6 +96,15 @@ This section will guide you through setting up the project both locally and usin
    docker run -e WANDB_API_KEY=<your-wandb-api-key> -v $(pwd)/models:/app/models train-image:latest
    ```
 
+   You may have to run it with this command because of some shared memory issues
+
+   ```bash
+   docker run --rm -e WANDB_API_KEY=<your-wandb-api-key> \
+  -v $(pwd)/models:/app/models \
+  --shm-size=2g \
+  train-image:latest
+   ```
+
    Replace `<your-wandb-api-key>` with your actual W&B API key.
 
 5. **Build and Run the API Docker Image:**
@@ -103,16 +112,16 @@ This section will guide you through setting up the project both locally and usin
    Build the Docker image for the API:
 
    ```bash
-   docker build -t api-image:latest -f dockerfiles/api.dockerfile .
+   docker build -t gradio-app:latest -f dockerfiles/api.dockerfile .
    ```
 
    Run the API container:
 
    ```bash
-   docker run -p 8000:8000 api-image:latest
+   docker run --rm -p 8080:8080 -p 8001:8001 gradio-app:latest
    ```
 
-   Access the API at [http://localhost:8000/docs](http://localhost:8000/docs) to test predictions.
+   Access the API at [http://localhost:8080](http://localhost:8080) to test predictions.
 
 ---
 

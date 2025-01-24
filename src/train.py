@@ -13,7 +13,7 @@ import numpy as np
 
 # Hyperparameters
 IMG_SIZE = (128, 128)
-GCS_BUCKET_NAME = "foodclassrae"  # Replace with your GCS bucket name
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME")  # Replace with your GCS bucket name
 GCS_PROCESSED_DATA_FOLDER = "data/processed"
 GCS_MODEL_FOLDER = "models"
 SEED = 42
@@ -154,17 +154,18 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
     torch.save(model.state_dict(), model_path)
     print(f"Model saved locally to {model_path}")
 
-    gcs_model_path = os.path.join(GCS_MODEL_FOLDER, "food_cnn.pth")
-    upload_to_gcs(model_path, GCS_BUCKET_NAME, gcs_model_path)
+    if GCS_BUCKET_NAME:
+        gcs_model_path = os.path.join(GCS_MODEL_FOLDER, "food_cnn.pth")
+        upload_to_gcs(model_path, GCS_BUCKET_NAME, gcs_model_path)
 
-    artifact = wandb.Artifact(
-        name="food_classifier",
-        type="model",
-        description="A model trained to classify food images",
-        metadata={"Val Accuracy": val_accuracy},
-    )
-    artifact.add_file(model_path)
-    run.log_artifact(artifact)
+        artifact = wandb.Artifact(
+            name="food_classifier",
+            type="model",
+            description="A model trained to classify food images",
+            metadata={"Val Accuracy": val_accuracy},
+        )
+        artifact.add_file(model_path)
+        run.log_artifact(artifact)
 
 
 if __name__ == "__main__":
