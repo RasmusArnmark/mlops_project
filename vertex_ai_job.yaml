@@ -4,9 +4,6 @@ worker_pool_specs:
     replica_count: 1
     container_spec:
       image_uri: europe-west1-docker.pkg.dev/foodclassrae/food-class/train-image:latest
-      env:
-        - name: WANDB_API_KEY
-          value: "6fdf605a7c35b4eb3fdd7041026e484d1fe54bf8"
       args:
         - "--data-dir=data/processed"
         - "--model-dir=models"
@@ -22,9 +19,6 @@ worker_pool_specs:
 #    replica_count: 1
 #    container_spec:
 #      image_uri: europe-west1-docker.pkg.dev/foodclassrae/food-class/train-image
-#      env:
-#        - name: WANDB_API_KEY
-#          value: "6fdf605a7c35b4eb3fdd7041026e484d1fe54bf8"
 #      args:
 #        - "--data-dir=data/processed"
 #        - "--model-dir=models"

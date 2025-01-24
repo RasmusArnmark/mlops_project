@@ -32,10 +32,15 @@ jobs:
         run: |
           gcloud auth configure-docker europe-west1-docker.pkg.dev
 
-      # Step 5: Build the Docker image
+      # Step 5: Build the Docker image with W&B API Key
       - name: Build the Docker image
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
         run: |
-          docker build -f dockerfiles/train.dockerfile -t europe-west1-docker.pkg.dev/foodclassrae/food-class/train-image:latest .
+          docker build \
+            --build-arg WANDB_API_KEY=${{ secrets.WANDB_API_KEY }} \
+            -f dockerfiles/train.dockerfile \
+            -t europe-west1-docker.pkg.dev/foodclassrae/food-class/train-image:latest .
 
       # Step 6: Push Docker image to Artifact Registry
       - name: Push Docker image to Artifact Registry

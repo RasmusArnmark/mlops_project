@@ -58,7 +58,7 @@ will check the repositories and the code to verify your answers.
     are using (M2+M6)
 * [X] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
 * [X] Do a bit of code typing and remember to document essential parts of your code (M7)
-* [X] Setup version control for your data or part of your data (M8)
+* [We tried and gave up :/, We did use gcs though] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
 * [X] Construct one or multiple docker files for your code (M10)
 * [X] Build the docker files locally and make sure they work as intended (M10)
@@ -79,7 +79,7 @@ will check the repositories and the code to verify your answers.
 * [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
 * [X] Add a linting step to your continuous integration (M17)
 * [ ] Add pre-commit hooks to your version control setup (M18)
-* [X] Add a continues workflow that triggers when data changes (M19)
+* [ ] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
 * [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
 * [X] Create a trigger workflow for automatically building your docker images (M21)
@@ -348,7 +348,7 @@ To ensure the reproducibility of our experiments, we used WandB (Weights and Bia
 >
 > Answer:
 
-We track several key metrics to assess the performance and progression of our models. Train accuracy provides an indication of how well the model is learning from the training data, showing us if it’s capturing the necessary patterns. Meanwhile, train loss helps us gauge how closely the model’s predictions match the actual values, and monitoring it ensures that the model is improving as expected.
+We track several key metrics to assess the performance and progression of our models. Train accuracy provides an indication of how well the model is learning from the training data, showing us if it's capturing the necessary patterns. Meanwhile, train loss helps us gauge how closely the model's predictions match the actual values, and monitoring it ensures that the model is improving as expected.
 
 Validation accuracy is important as it measures how well the model performs on new, unseen data, helping us verify that the model is not overfitting. It is the new unseen data we want our model to be good at predicting. Validation loss offers a similar view but in terms of the error made on the validation set, helping us detect potential overfitting. If the validation loss starts to behave differently from the training loss, it could signal that the model is overfitting.
 

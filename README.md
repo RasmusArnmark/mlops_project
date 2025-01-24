@@ -16,12 +16,8 @@ This project demonstrates an end-to-end MLOps pipeline for training and evaluati
 ### 1. Prerequisites
 
 Ensure you have the following installed:
-- Python 3.8+
+- Python 3.11
 - pip
-- PyTorch
-- torchvision
-- DVC
-- scikit-learn
 
 Install dependencies:
 
