@@ -88,31 +88,16 @@ def download_images_from_bucket(bucket_name="foodclassrae", local_dir="data"):
             with open(json_filename, "r") as json_file:
                 json_data = json.load(json_file)
 
-            # Unflatten the image data
-            # Assuming the image data is stored under the key 'image' and is flattened
+
             if 'image' in json_data:
                 image_data = np.array(json_data['image'])
-
-                #flattened_image = json_data['image']
-                #image_data = unflatten_data(flattened_image)
-
-                # Reshape to 3x128x128 if needed
-                # image_data = image_data.reshape(3, 128, 128)
-
-                # Convert the image data to RGB format
-                # Image data is assumed to be normalized between -1 and 1, so scale it to 0-255 range
                 image_data = (image_data) * 255
-                #image_data = image_data.reshape(128,128,3)
                 image_data = torch.from_numpy(image_data)
                 image_data = image_data.permute(1,2,0).numpy()
-                # Merge the 3 color channels into an RGB image (height x width x 3)
-                #image_data = np.moveaxis(image_data, 0, -1)  # Move the channels to the last dimension
-                #image_data = image_data.numpy
                 # Convert numpy array to an image (RGB)
                 image_data = image_data.astype(np.uint8)
                 image = Image.fromarray(image_data, mode="RGB")
                 # Prepare the filename
-                #image_filename = json_filename.replace(".json", ".jpg")
                 image.save(f'data/new_data/{json_data['predicted']}_{json_data['timestamp']}.jpg')
             else:   
                 print(f"No image data found in {blob.name}")
@@ -140,8 +125,8 @@ def load_images_from_processed(directory):
                         img_path = os.path.join(label_dir, img_file)
                         
                         try:
-                            img = Image.open(img_path)  # Convert to grayscale
-                            img_array = np.array(img)   # Normalize pixel values to [0, 1]
+                            img = Image.open(img_path) 
+                            img_array = np.array(img) 
                             images.append(img_array)
                             labels.append(label)  # Use folder name as the label
                         except Exception as e:
