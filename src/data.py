@@ -3,7 +3,6 @@ import shutil
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-from google.cloud import storage
 import kagglehub
 import subprocess
 
@@ -150,4 +149,3 @@ if __name__ == "__main__":
         print("Data upload to GCS complete!")
     else:
         print("GCS_BUCKET_NAME is not set. Skipping data upload to GCS.")
-

@@ -93,7 +93,7 @@ This section will guide you through setting up the project both locally and usin
    Run the training container and set your Weights & Biases (W&B) API key:
 
    ```bash
-   docker run -e WANDB_API_KEY=<your-wandb-api-key> train-image:latest
+   docker run -e WANDB_API_KEY=<your-wandb-api-key> -v $(pwd)/models:/app/models train-image:latest
    ```
 
    Replace `<your-wandb-api-key>` with your actual W&B API key.
