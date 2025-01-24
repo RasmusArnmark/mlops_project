@@ -8,12 +8,15 @@ from torchvision import datasets, transforms
 from google.cloud import storage
 from model import FoodCNN
 import wandb
+import random
+import numpy as np
 
 # Hyperparameters
 IMG_SIZE = (128, 128)
 GCS_BUCKET_NAME = "foodclassrae"  # Replace with your GCS bucket name
 GCS_PROCESSED_DATA_FOLDER = "data/processed"
 GCS_MODEL_FOLDER = "models"
+SEED = 42
 
 
 def download_from_gcs(bucket_name: str, gcs_folder: str, local_folder: str):
@@ -80,6 +83,14 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=4)
 
     num_classes = len(train_data.classes)
+
+    # Set the random seed
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+
+    # Initialize the model
     model = FoodCNN(num_classes).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
