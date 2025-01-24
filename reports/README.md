@@ -163,10 +163,11 @@ We used the third-party framework Gradio in our project. We utilized the Interfa
 >
 > Answer:
 
-We used pip (inside Conda) to manage our dependencies. The list of dependencies was auto-generated using pipreqs. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:: 
-conda create --name myenv --file requirements.txt
-conda activate myenv
-gcloud auth login
+We used pip (inside Conda) to manage our dependencies. We manualy added packages to our requirements.txt since pipreqs did write everything that was needed. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:: 
+`conda create --name myenv --file requirements.txt`
+`conda activate myenv`
+`gcloud auth login`
+`wandb login your_api_key`
 By running these commands, the team member will be able to set up the same environment and access the necessary resources on GCP
 
 
@@ -386,7 +387,11 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 16 fill here ---
+Debugging methods varied among team members, as each approached issues differently. Some preferred to rely on print statements and logging to trace the flow of the code, identifying where unexpected behavior occurred. Others used IDE-integrated debuggers to step through the code and inspect. Additionally, we worked with error messages in a when using different libraries
+
+We also conducted a profiling run using Python's cProfile to analyze the performance of our main code. This revealed bottlenecks a couple of bottlenecks, but we did not spend much time trying to optimise. We generally did not experience any problems with the training or data processing being slow. Obviously this would change if we used a bigger dataset. 
+
+As for the last part, no our code isn't perfect, but we felt we tried to find a balance between usability and performance.
 
 ## Working in the cloud
 
@@ -403,7 +408,15 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 17 fill here ---
+Vertex AI: Used for training and experimenting with machine learning models. It provided a scalable and managed environment for running training jobs and tracking experiments, simplifying the model development process.
+
+Google Compute Engine (GCE): We didnt really use it directly but vertex ai uses compute engine, so in a way we did use that as well.
+
+Cloud Run: We deployed our trained models and made an app that served predictions. Cloud Run ensured scalability and low latency without requiring us to manage underlying infrastructure.
+
+Google Cloud Storage (GCS): Used to store and retrieve datasets, preprocessed data, and model artifacts. It acted as a reliable and scalable storage solution for all project assets.
+
+Artifact Registry: Used to store and manage Docker container images. It provided a secure and centralized registry for storing the images used in our Cloud Run deployments.
 
 ### Question 18
 
@@ -418,7 +431,13 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 18 fill here ---
+We used the Compute Engine as the backbone of our GCP workflows, primarily through its integration with other GCP services. For training machine learning models, we leveraged Vertex AI, which runs on Compute Engine instances behind the scenes. This allowed us to focus on model development.
+
+For deployments, we utilized Cloud Run, which also relies on Compute Engine.
+
+We made use of Compute Engine to support our machine learning workflows. For initial experimentation and lighter workloads, we used n1-highmem-2 VMs with 2 vCPUs and 13 GB of RAM. These instances were sufficient for smaller-scale experiments and were configured to run with a containerized training environment hosted in the Artifact Registry. 
+
+Later on we tried using more powerful GPU-enabled instances. Specifically, we experimented with n1-standard-4 VMs equipped with NVIDIA Tesla K80 GPUs. These instances allowed us to significantly reduce training times by leveraging GPU acceleration.
 
 ### Question 19
 
@@ -427,7 +446,9 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 19 fill here ---
+![alt text](figures/bucket.png)
+
+Models contains our trained models, and new_data is data from the api, for datadrifting.
 
 ### Question 20
 
@@ -436,7 +457,10 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 20 fill here ---
+![alt text](figures/registry1.png)
+![alt text](figures/registry2.png)
+
+We made a couple of repositories, but we used food-class, and had docker images for the training and api. 
 
 ### Question 21
 
@@ -445,7 +469,7 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 21 fill here ---
+We did not use GCP cloud build, but rather built our images with github actions, and then pushed them the the artifact repository. The process is in .github/workflows/cloudbuild*.yaml
 
 ### Question 22
 
@@ -460,7 +484,11 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 22 fill here ---
+Yes, we managed to train our model in the cloud using Vertex AI. We chose Vertex AI because it provides a fully managed environment for training machine learning models, allowing us to focus on the training process without worrying about infrastructure management. The specific setup we got tried can be seen in vertex_ai_job.yaml
+
+To train our model, we created a custom Docker container that included all dependencies and our training script. The container image was stored in Artifact Registry and specified in the worker_pool_specs configuration.
+
+Vertex AI is what we felt most comfortable with, and it seemed easy to run multiple expereiments with different setups and engines
 
 ## Deployment
 
@@ -477,7 +505,11 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 23 fill here ---
+Yes, we wrote an API for our model using FastAPI and also built a Gradio app for interactive predictions. The FastAPI API handled image uploads, preprocessed them, passed them to the model, and returned predictions. It included robust error handling and ran locally for testing purposes.
+
+For the Gradio app, we deployed it on Cloud Run, allowing users to interact with the model through a simple web interface. The Gradio app was containerized using Docker and served predictions in a user-friendly manner. By working with both FastAPI and Gradio, we provided both API-based and interactive access to the model, ensuring flexibility and scalability. 
+
+The app can be found here: https://food-classification-api-654702382857.europe-west1.run.app
 
 ### Question 24
 
@@ -493,7 +525,11 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 24 fill here ---
+Yes, we successfully deployed our API. We wrapped our model into a FastAPI application for local testing and deployed our Gradio app on Cloud Run for cloud-based serving. The FastAPI application was designed to handle image uploads and return predictions and was tested locally for debugging and validation.
+
+For the cloud deployment, we containerized our Gradio app using Docker and pushed the image to Artifact Registry. We then deployed it to Cloud Run, allowing users to access the service via a public URL. The Gradio app provided an intuitive web interface for interacting with the model.
+
+To invoke the deployed service, users could simply open the Gradio web interface or send requests to the FastAPI API during local testing. 
 
 ### Question 25
 
@@ -508,7 +544,10 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 25 fill here ---
+Yes, we performed both unit testing and load testing for our API. For unit testing, we used pytest to validate the functionality of individual API endpoints, ensuring proper handling of inputs, outputs, and error cases. These tests were integrated into our CI pipeline and automatically executed using GitHub Actions with every code update, helping us maintain code reliability.
+
+For load testing, we used Locust. We tested the fastapi app by simulating multiple concurrent users making requests. The load testing results showed that the service handled up to 10 concurrent users with minimal latency, but performance degraded beyond that due. We didnt test our cloud run 
+
 
 ### Question 26
 
@@ -523,7 +562,8 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 26 fill here ---
+We implemented prometheus for our gradio app, to monitor metrics like requestcount, we also implemented alerts in Gcloud based on some of those metrics, so we get warnings if the app has a lot of requests. This will help because we know when something might be going wrong with our app, and just to be able to monitor general health. 
+
 
 ## Overall discussion of project
 
@@ -542,7 +582,9 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 27 fill here ---
+We used one billing project where s234826 was the owner, and everyone had access. As of friday 24th we used almost 20$, with Compute engine costing 12 of the 20$. And storage being the other main expense. 
+
+Although it took quite a bit of trial and error, we feel comfortable working the cloud now, and getting a new project up and running, would likely be a lot easier. It does complicate the project though. 
 
 ### Question 28
 
@@ -558,7 +600,7 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 28 fill here ---
+We implemented a Gradio app as a frontend for our API. This was done to provide a simple and user-friendly interface for users to interact with the model by uploading images and viewing predictions directly in their browser. The Gradio app made it easier to demonstrate the model’s functionality without requiring users to understand API calls.
 
 ### Question 29
 
@@ -575,7 +617,15 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 29 fill here ---
+Our system architecture closely resembles the example figure provided. The process begins locally, where we develop, test, and commit code to our GitHub repository. Once changes are merged into the main branch, GitHub Actions is triggered. The CI/CD pipeline runs unit tests to ensure code quality and then builds Docker images for both the API and the training workflows. These images are pushed to Artifact Registry in GCP for version control and deployment.
+
+From the Artifact Registry, the API Docker image is deployed to Cloud Run, creating a scalable and serverless endpoint for serving model predictions. For training workflows, the training Docker image can be triggered manually, which runs on Vertex AI. This service handles resource provisioning, such as selecting high-memory or GPU-enabled instances, to train models efficiently.
+
+Throughout the process, we use Weights & Biases (W&B) to log experiments, track hyperparameters, and monitor training metrics. Additionally, W&B Sweeps are used for hyperparameter optimization, ensuring we achieve the best possible model performance.
+
+Lastly the end user can interact with the newest model through the gradio app. 
+
+![alt text](figures/overview.png)
 
 ### Question 30
 
@@ -589,7 +639,13 @@ By using Docker, we can run our code on various machines without facing compatib
 >
 > Answer:
 
---- question 30 fill here ---
+We spent a lot of time on data-drifting and trying to impliment a way to save the pictures submitted by to the api, to compare to the reference data. Anoter big challenge was getting the continueous integration with github actions to work. We could not figure out how to authenticate properly with gcloud, and a lot of our testing hinged on downloading the trained model to test it. 
+
+Another big challenge was getting vertex ai training and deploying the api to work. This was mostly because of our inexperience. 
+
+Lastly, working together on github provided a challenge, as we had to ensure everyone followed the same process for committing and merging branches. 
+
+Some of these issues where related to communication and so we had to communicate to make sure everyone was on the same page. Others we fixed through trail and error, reading logs etc. 
 
 ### Question 31
 
@@ -607,4 +663,10 @@ By using Docker, we can run our code on various machines without facing compatib
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+s223750: Focused on developing the API using FastAPI, creating the Gradio app for an interactive frontend, and designing the model architecture. Additionally, worked on abstraction for better modularity and implementing the Cloud Build pipeline for automating Docker image creation.
+
+s234800: Worked on data drifting detection, load testing of the API, and preprocessing the data pipeline. Also led efforts in setting up and running W&B sweeps for hyperparameter optimization and profiling the application to identify and optimize bottlenecks.
+
+s234846: Responsible for training the models in the cloud using Vertex AI, integrating W&B for experiment tracking, and managing data storage in Google Cloud Storage. Also contributed to setting up CI workflows, as well as building and testing Docker containers locally.
+
+Generative AI Usage: We used ChatGPT to debug code, understand error messages, and improve specific parts of our implementation. GitHub Copilot assisted with boilerplate code, such as Dockerfiles, and CI scripts. These tools enhanced efficiency but all work was reviewed and refined by team members to ensure quality and correctness.
