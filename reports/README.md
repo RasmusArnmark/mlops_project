@@ -163,11 +163,11 @@ We used the third-party framework Gradio in our project. We utilized the Interfa
 >
 > Answer:
 
-We used pip (inside Conda) to manage our dependencies. We manualy added packages to our requirements.txt since pipreqs did write everything that was needed. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:: 
-`conda create --name myenv --file requirements.txt`
-`conda activate myenv`
-`gcloud auth login`
-`wandb login your_api_key`
+We used pip (inside Conda) to manage our dependencies. We manualy added packages to our requirements.txt since pipreqs did write everything that was needed. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:  
+`conda create --name myenv --file requirements.txt`  
+`conda activate myenv`  
+`gcloud auth login`  
+`wandb login your_api_key`  
 By running these commands, the team member will be able to set up the same environment and access the necessary resources on GCP
 
 

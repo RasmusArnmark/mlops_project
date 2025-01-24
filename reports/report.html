@@ -133,10 +133,11 @@ how you managed dependencies, the structure of your code and how you managed cod
 <em>complete copy of our development environment, one would have to run the following commands</em></p>
 <p>Answer:</p>
 </blockquote>
-<p>We used pip (inside Conda) to manage our dependencies. The list of dependencies was auto-generated using pipreqs. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:: 
-conda create --name myenv --file requirements.txt
-conda activate myenv
-gcloud auth login
+<p>We used pip (inside Conda) to manage our dependencies. We manualy added packages to our requirements.txt since pipreqs did write everything that was needed. To get a copy of our exact environment, a new team member would first create a new virtual environment and then install the dependencies through our requirements.txt file. Additionally, they would need to log in to Google Cloud Platform. For Linux, the commands to replicate the environment are as follows:<br />
+<code>conda create --name myenv --file requirements.txt</code><br />
+<code>conda activate myenv</code><br />
+<code>gcloud auth login</code><br />
+<code>wandb login your_api_key</code><br />
 By running these commands, the team member will be able to set up the same environment and access the necessary resources on GCP</p>
 <h3>Question 5</h3>
 <blockquote>
