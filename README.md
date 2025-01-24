@@ -67,9 +67,21 @@ This section will guide you through setting up the project both locally and usin
    Run the data preparation script to download and preprocess the data:
 
    ```bash
-   python src/data.py
+   docker build -f dockerfiles/data.dockerfile -t data-processor .
    ```
 
+   Then run, this will download and preprocess the data, and mount it to an output directory. We couldnt mount it to the data folder for various reasons.
+
+   ```bash
+   docker run --rm -v $(pwd)/output_dir:/output data-processor
+   ```
+
+   Lastly run 
+
+    ```bash
+   mv output_dir/data/* data/ && rm -rf output_dir
+   ```
+   
 4. **Build and Run the Training Docker Image:**
 
    Build the Docker image for training:

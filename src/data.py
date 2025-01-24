@@ -8,7 +8,7 @@ import kagglehub
 import subprocess
 
 # Define input and output paths
-GCS_BUCKET_NAME = ("foodclassrae")
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME")
 IMG_SIZE = (128, 128)  # Resize images to this size
 
 
@@ -17,11 +17,8 @@ def download_from_kaggle():
     Download the dataset from Kaggle and structure it correctly.
     """
     dataset_name = "harishkumardatalab/food-image-classification-dataset"
-    raw_data_dir = "data/raw"
-    processed_data_dir = "data/processed"
-
+    raw_data_dir = "raw_tmp"
     os.makedirs(raw_data_dir, exist_ok=True)
-    os.makedirs(processed_data_dir, exist_ok=True)
 
     print("Downloading dataset...")
     path = kagglehub.dataset_download(dataset_name)
@@ -43,43 +40,25 @@ def download_from_kaggle():
         else:
             break
 
-    print("Moving dataset to 'data/raw'...")
+    print("Copying dataset to 'raw_tmp'...")
     target_path = os.path.join(raw_data_dir, os.path.basename(dataset_root))
-    shutil.move(dataset_root, target_path)
-    print(f"Dataset moved to: {target_path}")
+    shutil.copytree(dataset_root, target_path, dirs_exist_ok=True)
+    print(f"Dataset copied to: {target_path}")
     return target_path
 
 
 def create_directories(base_dir):
     """
-    Create necessary directories for processed data.
+    Create necessary directories for processed data without deleting existing ones.
     """
     for split in ["train", "val", "test"]:
         split_dir = os.path.join(base_dir, split)
         os.makedirs(split_dir, exist_ok=True)
 
 
-def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
-    """
-    Uploads processed data to GCS.
-    """
-    print(f"Uploading data from {local_folder} to gs://{bucket_name}/{gcs_folder}...")
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
-
-    for root, _, files in os.walk(local_folder):
-        for file in files:
-            local_path = os.path.join(root, file)
-            relative_path = os.path.relpath(local_path, local_folder)
-            gcs_path = os.path.join(gcs_folder, relative_path)
-            blob = bucket.blob(gcs_path)
-            blob.upload_from_filename(local_path)
-            print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
-
-
 def process_and_split_data(
-    raw_data_dir="data/raw/Food Classification dataset",
-    processed_data_dir="data/processed",
+    raw_data_dir="raw_tmp/Food Classification dataset",
+    processed_data_dir="processed_tmp",
 ):
     """
     Process and split the dataset into train/val/test sets.
@@ -128,6 +107,19 @@ def process_and_split_data(
             img.save(os.path.join(label_dir, os.path.basename(img_path)))
 
 
+def move_to_data_dir():
+    """
+    Move temporary directories into the data directory.
+    """
+    os.makedirs("data", exist_ok=True)
+
+    if os.path.exists("raw_tmp"):
+        shutil.move("raw_tmp", "data/raw")
+    if os.path.exists("processed_tmp"):
+        shutil.move("processed_tmp", "data/processed")
+    print("Moved raw and processed directories into 'data/'")
+
+
 def upload_to_gcs_with_gsutil(local_folder: str, bucket_name: str, gcs_folder: str):
     """
     Upload a local folder to GCS using `gsutil` for faster performance.
@@ -142,10 +134,20 @@ def upload_to_gcs_with_gsutil(local_folder: str, bucket_name: str, gcs_folder: s
 
 
 if __name__ == "__main__":
-    if not os.path.exists("data/raw/Food Classification dataset"):
+    os.makedirs("raw_tmp", exist_ok=True)
+    os.makedirs("processed_tmp", exist_ok=True)
+
+    if not os.listdir("raw_tmp"):
         download_from_kaggle()
 
     process_and_split_data()
     print("Data processing complete!")
-    upload_to_gcs_with_gsutil("data/processed", GCS_BUCKET_NAME, "data/processed")
-    print("Data upload to GCS complete!")
+
+    move_to_data_dir()
+
+    if GCS_BUCKET_NAME:
+        upload_to_gcs_with_gsutil("data/processed", GCS_BUCKET_NAME, "data/processed")
+        print("Data upload to GCS complete!")
+    else:
+        print("GCS_BUCKET_NAME is not set. Skipping data upload to GCS.")
+
