@@ -14,7 +14,7 @@ app = FastAPI()
 
 # Load the model during startup
 model_path = os.getenv("MODEL_PATH", "models/food_cnn.pth")
-model = load_model(model_path,"foodclassrae")
+model = load_model(model_path, "foodclassrae")
 
 
 @app.get("/")
