@@ -78,7 +78,7 @@ def upload_to_gcs(local_folder: str, bucket_name: str, gcs_folder: str):
 
 
 def process_and_split_data(raw_data_dir="data/raw/Food Classification dataset", 
-                           processed_data_dir="data/processed"):
+        processed_data_dir="data/processed"):
     """
     Process and split the dataset into train/val/test sets.
     """
