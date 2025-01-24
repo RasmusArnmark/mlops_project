@@ -1,6 +1,6 @@
-import torch
 from torchvision import transforms
 from PIL import Image
+
 
 def preprocess_image(image: Image.Image):
     """
@@ -17,11 +17,11 @@ def preprocess_image(image: Image.Image):
         transforms.Resize((128, 128)),  # Resize to match model input size
         transforms.ToTensor(),         # Convert image to Tensor
     ])
-    
+
     # Apply transformations
     tensor = transform(image)  # Shape: [3, 128, 128]
 
-    # Add batch dimension here
+    # Add batch dimension
     tensor = tensor.unsqueeze(0)  # Shape: [1, 3, 128, 128]
     return tensor
 

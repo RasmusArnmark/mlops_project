@@ -15,6 +15,7 @@ GCS_BUCKET_NAME = "foodclassrae"  # Replace with your GCS bucket name
 GCS_PROCESSED_DATA_FOLDER = "data/processed"
 GCS_MODEL_FOLDER = "models"
 
+
 def download_from_gcs(bucket_name: str, gcs_folder: str, local_folder: str):
     """
     Download data from GCS to a local directory.
@@ -31,6 +32,7 @@ def download_from_gcs(bucket_name: str, gcs_folder: str, local_folder: str):
         blob.download_to_filename(local_path)
         print(f"Downloaded {blob.name} to {local_path}")
 
+
 def upload_to_gcs(local_path: str, bucket_name: str, gcs_path: str):
     """
     Upload a file to GCS.
@@ -42,13 +44,15 @@ def upload_to_gcs(local_path: str, bucket_name: str, gcs_path: str):
     blob.upload_from_filename(local_path)
     print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
+
 def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: float, epochs: int):
-    # Ensure data is available locally by downloading from GCS
+    """
+    Train the FoodCNN model using the specified dataset, hyperparameters, and save it to the specified directory.
+    """
     if not os.path.exists(data_dir):
         os.makedirs(data_dir, exist_ok=True)
         download_from_gcs(GCS_BUCKET_NAME, GCS_PROCESSED_DATA_FOLDER, data_dir)
 
-    # Ensure the model directory exists
     os.makedirs(model_dir, exist_ok=True)
 
     run = wandb.init(
@@ -56,31 +60,26 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         config={"BATCH_SIZE": batch_size, "LEARNING_RATE": learning_rate, "EPOCHS": epochs},
     )
 
-    # **Set the device (GPU or CPU)**
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # Define transforms for the data
     transform = transforms.Compose([
         transforms.Resize(IMG_SIZE),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ])
 
-    # Load datasets
     train_data = datasets.ImageFolder(os.path.join(data_dir, "train"), transform=transform)
     val_data = datasets.ImageFolder(os.path.join(data_dir, "val"), transform=transform)
 
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    # Initialize model, loss function, and optimizer
     num_classes = len(train_data.classes)
-    model = FoodCNN(num_classes).to(device)  # Move model to the device
-    criterion = nn.CrossEntropyLoss().to(device)  # Move loss function to the device
+    model = FoodCNN(num_classes).to(device)
+    criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Training loop
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
@@ -88,7 +87,6 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
         total_train = 0
 
         for images, labels in train_loader:
-            # Move data to the device
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
@@ -104,14 +102,12 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
 
         train_accuracy = correct_train / total_train
 
-        # Validation
         model.eval()
         val_loss = 0.0
         correct_val = 0
         total_val = 0
         with torch.no_grad():
             for images, labels in val_loader:
-                # Move data to the device
                 images, labels = images.to(device), labels.to(device)
 
                 outputs = model(images)
@@ -124,7 +120,6 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
 
         val_accuracy = correct_val / total_val
 
-        # Log metrics for each epoch
         wandb.log({
             "epoch": epoch + 1,
             "train_loss": running_loss / len(train_loader),
@@ -133,21 +128,20 @@ def train_model(data_dir: str, model_dir: str, batch_size: int, learning_rate: f
             "val_accuracy": val_accuracy,
         })
 
-        print(f"Epoch {epoch + 1}/{epochs}, "
-              f"Train Loss: {running_loss / len(train_loader):.4f}, "
-              f"Val Loss: {val_loss / len(val_loader):.4f}, "
-              f"Val Accuracy: {val_accuracy:.4f}")
+        print(
+            f"Epoch {epoch + 1}/{epochs}, "
+            f"Train Loss: {running_loss / len(train_loader):.4f}, "
+            f"Val Loss: {val_loss / len(val_loader):.4f}, "
+            f"Val Accuracy: {val_accuracy:.4f}"
+        )
 
-    # Save the model locally
     model_path = os.path.join(model_dir, "food_cnn.pth")
     torch.save(model.state_dict(), model_path)
     print(f"Model saved locally to {model_path}")
 
-    # Upload the model to GCS
     gcs_model_path = os.path.join(GCS_MODEL_FOLDER, "food_cnn.pth")
     upload_to_gcs(model_path, GCS_BUCKET_NAME, gcs_model_path)
 
-    # Log model as a W&B artifact
     artifact = wandb.Artifact(
         name="food_classifier",
         type="model",

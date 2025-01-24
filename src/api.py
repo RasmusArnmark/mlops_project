@@ -17,13 +17,16 @@ app = FastAPI()
 model_path = os.getenv("MODEL_PATH", "models/food_cnn.pth")
 model = load_model(model_path)
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Food Image Classification API!"}
 
+
 @app.get("/health/")
 def health_check():
     return {"status": "healthy", "model_loaded": model is not None}
+
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
@@ -32,36 +35,33 @@ async def predict(file: UploadFile = File(...)):
         image = Image.open(BytesIO(await file.read()))
         processed_image = preprocess_image(image)
     except Exception as e:
-        return JSONResponse(content={"error": f"Image preprocessing failed: {str(e)}"}, status_code=400)
+        return JSONResponse(
+            content={"error": f"Image preprocessing failed: {str(e)}"},
+            status_code=400,
+        )
 
     try:
         # Run prediction
         prediction = predict_image(processed_image, model, class_mapping=CLASS_MAPPING)
 
-
-
         # Save the data and prediction
         client = storage.Client()
         bucket = client.bucket("foodclassrae")
-        time = datetime.datetime.now(tz=datetime.UTC)
-        # Prepare prediction data
+        timestamp = datetime.datetime.now(tz=datetime.UTC)
 
-        #img = Image.open(img_path).convert("RGB")
-        #img = img.resize((128,128))
-        #img.save(os.path.join(label_dir, os.path.basename(img_path)))
-        # processed_image = processed_image.resize(3,128,128)
-        print(np.shape(torch.squeeze(processed_image)))
+        # Prepare prediction data
         data = {
             "predicted": prediction,
             "image": torch.squeeze(processed_image).tolist(),
-            "timestamp": datetime.datetime.now(tz=datetime.UTC).isoformat(),
+            "timestamp": timestamp.isoformat(),
         }
-        blob = bucket.blob(f"new_data/{prediction}_{time}.json")
+        blob = bucket.blob(f"new_data/{prediction}_{timestamp}.json")
         blob.upload_from_string(json.dumps(data))
 
-
-
     except Exception as e:
-        return JSONResponse(content={"error": f"Model prediction failed: {str(e)}"}, status_code=500)
+        return JSONResponse(
+            content={"error": f"Model prediction failed: {str(e)}"},
+            status_code=500,
+        )
 
     return {"filename": file.filename, "prediction": prediction}
