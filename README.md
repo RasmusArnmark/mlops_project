@@ -37,21 +37,109 @@ pip install -r requirements.txt
 
 
 ### 2. How to run
+## Setup Instructions
 
-Create bucket in gcs
+This section will guide you through setting up the project both locally and using Google Cloud Platform (GCP). Follow these steps to get started.
 
-Download credential-key for serviceaccount with access to the bucket
+---
 
-Run 
-python src/data.py
+### Local Setup
 
-Build docker image with 
-docker build -t food-trainer:latest -f dockerfiles/train.dockerfile .
+1. **Create a Conda Environment:**
 
-Run training with docker
+   Ensure you have Conda installed on your system. Create and activate a new environment:
 
-docker run --rm \
-    -e GOOGLE_APPLICATION_CREDENTIALS=/app/src/credentials.json \
-    -v <path-to-your-credentials-file>:/app/src/credentials.json \
-    -e WANDB_API_KEY=<your-wandb-api-key> \
-    food-trainer:latest
+   ```bash
+   conda create --name mlops_env python=3.11 -y
+   conda activate mlops_env
+   ```
+
+2. **Install Dependencies:**
+
+   Use the `requirements.txt` file to install project dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Prepare Data:**
+
+   Run the data preparation script to download and preprocess the data:
+
+   ```bash
+   python src/data.py
+   ```
+
+4. **Build and Run the Training Docker Image:**
+
+   Build the Docker image for training:
+
+   ```bash
+   docker build -t train-image:latest -f dockerfiles/train.Dockerfile .
+   ```
+
+   Run the training container and set your Weights & Biases (W&B) API key:
+
+   ```bash
+   docker run -e WANDB_API_KEY=<your-wandb-api-key> train-image:latest
+   ```
+
+   Replace `<your-wandb-api-key>` with your actual W&B API key.
+
+5. **Build and Run the API Docker Image:**
+
+   Build the Docker image for the API:
+
+   ```bash
+   docker build -t api-image:latest -f dockerfiles/api.Dockerfile .
+   ```
+
+   Run the API container:
+
+   ```bash
+   docker run -p 8000:8000 api-image:latest
+   ```
+
+   Access the API at [http://localhost:8000/docs](http://localhost:8000/docs) to test predictions.
+
+---
+
+### Optional GCP Setup
+
+To leverage GCP for model storage, automated Docker builds, and deployment, follow these steps:
+
+#### 1. **Set Up a GCS Bucket:**
+
+   Create a bucket to store models and data:
+
+   ```bash
+   gcloud storage buckets create gs://<your-gcs-bucket> --location=<your-region>
+   ```
+
+   Update the `.env` file to include the GCS bucket name:
+
+   ```env
+   GCS_BUCKET=<your-gcs-bucket>
+   ```
+
+   The trained model will automatically be uploaded to the bucket during the training process.
+
+#### 2. **Set Up GitHub Actions for Automated Builds:**
+
+   Configure GitHub Actions to build and push your Docker images to GCP Artifact Registry. Add your GCP credentials and W&B API key as secrets in your GitHub repository.
+
+   Once configured, any push to the `main` branch will trigger GitHub Actions to build and push the Docker images for training and API.
+
+#### 3. **Run Training and Deployment on GCP:**
+
+   - **Training:** Use Vertex AI to run the training job. Example configuration for `vertex_ai_job.yaml` is included in the repository.
+   - **Deployment:** Use Cloud Run to deploy the API. The following command deploys the Gradio app:
+
+     ```bash
+     gcloud run deploy food-classification-api \
+       --image=europe-west1-docker.pkg.dev/<your-project-id>/food-class/api-image:latest \
+       --region=europe-west1 \
+       --allow-unauthenticated
+     ```
+
+By following these steps, you can set up the project locally and extend it to utilize GCP for scalable training, deployment, and monitoring.
