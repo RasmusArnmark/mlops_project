@@ -42,7 +42,7 @@ def load_model(model_path: str = "models/food_cnn.pth", bucket_name: str = "food
     if not os.path.exists(model_path):
         if bucket_name:
             print("Model not found locally. Attempting to download from GCS...")
-            gcs_model_path = os.path.basename(model_path)
+            gcs_model_path = "models/food_cnn.pth"
             download_model_from_gcs(bucket_name, gcs_model_path, model_path)
         else:
             raise FileNotFoundError(f"Model file not found: {model_path}")
@@ -120,6 +120,6 @@ CLASS_MAPPING = {
 
 
 if __name__ == "__main__":
-    model = load_model("models/food_cnn_3.pth", bucket_name=os.getenv("GCS_BUCKET"))
+    model = load_model(model_path="models/food_cnn.pth", bucket_name="foodclassrae")
     example_tensor = torch.rand(1, 3, 128, 128)
     print(predict_image(example_tensor, model, class_mapping=CLASS_MAPPING))
