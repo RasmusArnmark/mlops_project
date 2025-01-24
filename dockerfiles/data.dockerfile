@@ -20,9 +20,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the source code into the container
 COPY src/ src/
 COPY data/ data/
+COPY output_dir/ output/
 
 # Create the output directories for data
 RUN mkdir -p /data/raw /data/processed
 
+
 # Run the data preprocessing script
-CMD ["bash", "-c", "python src/data.py && cp -r /data /output"]
+CMD ["bash", "-c", "python src/data.py && mv /app/data/* /app/output/"]

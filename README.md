@@ -73,7 +73,7 @@ This section will guide you through setting up the project both locally and usin
    Then run, this will download and preprocess the data, and mount it to an output directory. We couldnt mount it to the data folder for various reasons.
 
    ```bash
-   docker run --rm -v $(pwd)/output_dir:/output data-processor
+   docker run --rm  -v $(pwd)/output_dir:/app/output data-processor
    ```
 
    Lastly run 
@@ -87,7 +87,7 @@ This section will guide you through setting up the project both locally and usin
    Build the Docker image for training:
 
    ```bash
-   docker build -t train-image:latest -f dockerfiles/train.Dockerfile .
+   docker build -t train-image:latest -f dockerfiles/train.dockerfile .
    ```
 
    Run the training container and set your Weights & Biases (W&B) API key:
@@ -103,7 +103,7 @@ This section will guide you through setting up the project both locally and usin
    Build the Docker image for the API:
 
    ```bash
-   docker build -t api-image:latest -f dockerfiles/api.Dockerfile .
+   docker build -t api-image:latest -f dockerfiles/api.dockerfile .
    ```
 
    Run the API container:
