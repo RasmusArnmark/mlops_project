@@ -100,9 +100,9 @@ This section will guide you through setting up the project both locally and usin
 
    ```bash
    docker run --rm -e WANDB_API_KEY=<your-wandb-api-key> \
-  -v $(pwd)/models:/app/models \
-  --shm-size=2g \
-  train-image:latest
+   -v $(pwd)/models:/app/models \
+   --shm-size=2g \
+   train-image:latest
    ```
 
    Replace `<your-wandb-api-key>` with your actual W&B API key.
