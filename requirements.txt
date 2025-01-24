@@ -15,4 +15,4 @@ dvc==2.44.0
 dvc[gs]==2.44.0
 typer==0.13.1
 gradio==5.13.0
-
+prometheus_client==0.21.0
